@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project/screens/profile_screen.dart';
 import 'package:project/screens/registration_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -82,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
           minWidth: MediaQuery.of(context).size.width,
           onPressed: () {
-
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
           },
           child: const Text(
             "Connexion",
