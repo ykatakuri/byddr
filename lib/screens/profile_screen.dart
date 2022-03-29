@@ -1,4 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:project/models/user.dart';
+import 'package:project/screens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -10,11 +14,31 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   static const primaryColor = Color(0xff320C7E);
 
+  User? user = FirebaseAuth.instance.currentUser;
+  AppUser loggedInUser = AppUser();
+
+  @override
+  void initState() {
+    super.initState();
+
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.uid)
+        .get()
+        .then((value) {
+      loggedInUser = AppUser.fromMap(value.data());
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Bienvenue", style: TextStyle(color: primaryColor),),
+        title: const Text(
+          "Bienvenue",
+          style: TextStyle(color: primaryColor),
+        ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -29,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(
                 height: 100,
                 child:
-                Image.asset("assets/images/logo.png", fit: BoxFit.contain),
+                    Image.asset("assets/images/logo.png", fit: BoxFit.contain),
               ),
               const SizedBox(
                 height: 10,
@@ -41,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(
                 height: 10,
               ),
-              Text("Hello John Doe",
+              Text("${loggedInUser.firstName} ${loggedInUser.lastName}",
                   style: const TextStyle(
                     color: Colors.black54,
                     fontWeight: FontWeight.w500,
@@ -49,7 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(
                 height: 10,
               ),
-              Text("jdoe@gmail.com",
+              Text("${loggedInUser.email}",
                   style: const TextStyle(
                     color: Colors.black54,
                     fontWeight: FontWeight.w500,
@@ -60,6 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ActionChip(
                   label: const Text("Déconnexion"),
                   onPressed: () {
+                    logout(context);
                   }),
             ],
           ),
@@ -67,5 +92,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-}
 
+  Future<void> logout(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const LoginScreen()));
+  }
+}

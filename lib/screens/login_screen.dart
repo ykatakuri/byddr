@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:project/screens/profile_screen.dart';
+import 'package:project/screens/home_screen.dart';
 import 'package:project/screens/registration_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -130,7 +130,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           const Text("Pas de compte? "),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const RegistrationScreen()));
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const RegistrationScreen()));
                             },
                             child: const Text(
                               "S'inscrire",
@@ -157,10 +161,13 @@ class _LoginScreenState extends State<LoginScreen> {
         await _auth
             .signInWithEmailAndPassword(email: email, password: password)
             .then((uid) => {
-          Fluttertoast.showToast(msg: "Login Successful"),
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const ProfileScreen())),
-        });
+                  Fluttertoast.showToast(msg: "Login Successful"),
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const HomeScreen(),
+                    ),
+                  ),
+                });
       } on FirebaseAuthException catch (error) {
         switch (error.code) {
           case "invalid-email":
@@ -190,4 +197,3 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 }
-
