@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "828986548258",
+    "project_id": "byddr-98798",
+    "storage_bucket": "byddr-98798.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:828986548258:android:6f0593ad6fa587122f2a7b",
+        "android_client_info": {
+          "package_name": "com.yannxy.byddr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "828986548258-ngjk6u3m05mphj39vih38dmnv43h9mg2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTkYTpmFg_WGm-jQMf1She97Ou7W5CC5s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "828986548258-ngjk6u3m05mphj39vih38dmnv43h9mg2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
