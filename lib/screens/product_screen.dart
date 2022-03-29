@@ -6,8 +6,8 @@ import 'package:project/animations/slide_animation.dart';
 
 import '../utils/constants.dart';
 
-class ItemScreen extends StatelessWidget {
-  const ItemScreen({Key? key}) : super(key: key);
+class ProductScreen extends StatelessWidget {
+  const ProductScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class ItemScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        'DAY 74',
+                        'JOUR 74',
                         style: TextStyle(
                           fontSize: 24.r,
                           fontWeight: FontWeight.bold,
@@ -64,7 +64,7 @@ class ItemScreen extends StatelessWidget {
                           ),
                           SizedBox(width: 8.h),
                           const Text(
-                            '@Mark Rise',
+                            '@John Doe',
                             style: TextStyle(
                               color: Colors.black54,
                             ),
@@ -73,7 +73,7 @@ class ItemScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 8.h),
                       Text(
-                        'Who we were and what we will become are there, they are around us, they are batting, they are resting and they are being watched...More',
+                        'Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Proin eget tortor risus.',
                         style: bodyTextStyle,
                       ),
                       SizedBox(height: 8.h),
@@ -90,7 +90,7 @@ class ItemScreen extends StatelessWidget {
                             fit: BoxFit.cover,
                           ),
                         ),
-                        title: const Text('Highest Bid Placed By'),
+                        title: const Text('Meilleure Offre Par'),
                         subtitle: Text(
                           'Merry Rose',
                           style: TextStyle(
@@ -100,7 +100,7 @@ class ItemScreen extends StatelessWidget {
                           ),
                         ),
                         trailing: Text(
-                          '15.97 ETH',
+                          '15.97 BTC',
                           style: TextStyle(
                             fontSize: 16.r,
                             color: Colors.black,
@@ -140,7 +140,7 @@ class Button extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(
-            'Place Bid',
+            'Faire Une Offre',
             style: TextStyle(
               color: Colors.white,
               fontSize: 16.r,
@@ -175,7 +175,7 @@ class _AppBar extends StatelessWidget {
         ),
         SizedBox(width: 16.h),
         Text(
-          'Auctions',
+          'Enchères',
           style: TextStyle(
             fontSize: 16.r,
             fontWeight: FontWeight.bold,
@@ -186,8 +186,6 @@ class _AppBar extends StatelessWidget {
           Iconsax.heart5,
           color: Colors.red,
         ),
-        SizedBox(width: 16.h),
-        const Icon(Iconsax.menu_1),
       ],
     );
   }

@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:project/models/user.dart';
-import 'package:project/screens/item_screen.dart';
 import 'package:project/screens/onboarding_screen.dart';
+import 'package:project/screens/product_screen.dart';
 
 import '../animations/page_transition.dart';
 import '../animations/slide_animation.dart';
@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Navigator.push(
                             context,
                             PageTransition(
-                              child: const ItemScreen(),
+                              child: const ProductScreen(),
                               type: PageTransitionType.fadeIn,
                             ));
                       },
