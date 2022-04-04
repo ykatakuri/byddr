@@ -30,8 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
         iconSize: 22.r,
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.black,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
         items: [
           productList(),
