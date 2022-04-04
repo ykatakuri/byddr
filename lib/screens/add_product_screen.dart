@@ -2,14 +2,19 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:project/models/product.dart';
 import 'package:project/models/user.dart';
 import 'package:project/screens/onboarding_screen.dart';
+import 'package:project/services/firebase_api.dart';
 import 'package:project/utils/constants.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({Key? key}) : super(key: key);
@@ -45,31 +50,18 @@ class _AddProductScreenState extends State<AddProductScreen> {
     });
   }
 
-  File? image;
+  UploadTask? task;
+  File? file;
 
-  Future pickImageFromGallery() async {
+  Future selectFile() async {
     try {
-      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      final result = await FilePicker.platform.pickFiles(allowMultiple: false);
 
-      if (image == null) return;
+      if (result == null) return;
 
-      final imageTemp = File(image.path);
+      final path = result.files.single.path;
 
-      setState(() => this.image = imageTemp);
-    } on PlatformException catch (e) {
-      print('Failed to pick image: $e');
-    }
-  }
-
-  Future pickImageFromCamera() async {
-    try {
-      final image = await ImagePicker().pickImage(source: ImageSource.camera);
-
-      if (image == null) return;
-
-      final imageTemp = File(image.path);
-
-      setState(() => this.image = imageTemp);
+      setState(() => file = File(path!));
     } on PlatformException catch (e) {
       print('Failed to pick image: $e');
     }
@@ -77,6 +69,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final fileName =
+        file != null ? basename(file!.path) : 'Aucun fichier selectionné';
+
     final productNameField = TextFormField(
       autofocus: false,
       controller: productNameEditingController,
@@ -149,19 +144,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
     );
 
-    final pickImageFromGalleryButton = IconButton(
-      onPressed: pickImageFromGallery,
+    final selectFileIconButton = IconButton(
+      onPressed: selectFile,
       icon: const Icon(
-        Icons.image,
-        color: primaryColor,
-        size: 30,
-      ),
-    );
-
-    final pickImageFromCameraButton = IconButton(
-      onPressed: pickImageFromCamera,
-      icon: const Icon(
-        Icons.camera,
+        Icons.attach_file_outlined,
         color: primaryColor,
         size: 30,
       ),
@@ -174,7 +160,23 @@ class _AddProductScreenState extends State<AddProductScreen> {
       child: MaterialButton(
           padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
           minWidth: MediaQuery.of(context).size.width,
-          onPressed: () {},
+          onPressed: () {
+            final newProduct = Product(
+              userId: loggedInUser.uid,
+              productName: productNameEditingController.text,
+              productDescription: productDescriptionEditingController.text,
+              productPrice: double.parse(productPriceEditingController.text),
+              bidWinnerPrice: 0.0,
+            );
+
+            addProduct(newProduct);
+
+            Fluttertoast.showToast(msg: "Produit mis aux enchères.. ");
+
+            productNameEditingController.text = "";
+            productDescriptionEditingController.text = "";
+            productPriceEditingController.text = "";
+          },
           child: const Text(
             "Publier",
             textAlign: TextAlign.center,
@@ -215,28 +217,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     productPriceField,
                     const SizedBox(height: 20),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        const Text("Image:"),
-                        pickImageFromGalleryButton,
-                        pickImageFromCameraButton,
+                        const Text("Selectionner un fichier:"),
+                        selectFileIconButton,
                       ],
                     ),
                     const SizedBox(
                       height: 20,
                     ),
-                    image != null
-                        ? Image.file(
-                            image!,
-                            width: 100,
-                            height: 100,
-                          )
-                        : const Text("Aucune image sélectionnée"),
+                    Text(
+                      fileName,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w500),
+                    ),
                     const SizedBox(
                       height: 20,
                     ),
                     addButton,
-                    const SizedBox(height: 15),
                   ],
                 ),
               ),
@@ -246,6 +244,46 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
     );
   }
+
+  Future addProduct(Product product) async {
+    final docProduct = FirebaseFirestore.instance.collection("products").doc();
+    if (file == null) return;
+
+    final fileName = basename(file!.path);
+    final destination = 'files/$fileName';
+
+    task = FirebaseApi.uploadFile(destination, file!);
+    setState(() {});
+
+    if (task == null) return;
+
+    final snapshot = await task!.whenComplete(() {});
+    final urlDownload = await snapshot.ref.getDownloadURL();
+
+    product.uid = docProduct.id;
+    product.productFile = urlDownload.toString();
+
+    final json = product.toJson();
+    await docProduct.set(json);
+  }
+
+  Widget buildUploadStatus(UploadTask task) => StreamBuilder<TaskSnapshot>(
+        stream: task.snapshotEvents,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final snap = snapshot.data!;
+            final progress = snap.bytesTransferred / snap.totalBytes;
+            final percentage = (progress * 100).toStringAsFixed(0);
+
+            return Text(
+              '$percentage %',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            );
+          } else {
+            return Container();
+          }
+        },
+      );
 }
 
 class _Header extends StatelessWidget {
