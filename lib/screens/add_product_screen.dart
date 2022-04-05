@@ -148,7 +148,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       onPressed: selectFile,
       icon: const Icon(
         Icons.attach_file_outlined,
-        color: primaryColor,
+        color: customPrimaryColor,
         size: 30,
       ),
     );
@@ -156,13 +156,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
     final addButton = Material(
       elevation: 5,
       borderRadius: BorderRadius.circular(30),
-      color: primaryColor,
+      color: customPrimaryColor,
       child: MaterialButton(
           padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
           minWidth: MediaQuery.of(context).size.width,
           onPressed: () {
             final newProduct = Product(
               userId: loggedInUser.uid,
+              userFirstName: loggedInUser.firstName,
+              userLastName: loggedInUser.lastName,
               productName: productNameEditingController.text,
               productDescription: productDescriptionEditingController.text,
               productPrice: double.parse(productPriceEditingController.text),

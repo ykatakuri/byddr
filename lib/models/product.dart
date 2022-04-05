@@ -1,6 +1,8 @@
 class Product {
   String? uid;
   String? userId;
+  String? userFirstName;
+  String? userLastName;
   String? productName;
   String? productDescription;
   String? productFile;
@@ -10,28 +12,32 @@ class Product {
   Product(
       {this.uid,
       this.userId,
+      this.userFirstName,
+      this.userLastName,
       this.productName,
       this.productDescription,
       this.productFile,
       this.productPrice,
       this.bidWinnerPrice});
 
-  factory Product.fromJson(map) {
-    return Product(
-      uid: map['uid'],
-      userId: map['userId'],
-      productName: map['productName'],
-      productDescription: map['productDescription'],
-      productFile: map['productFile'],
-      productPrice: map['productPrice'],
-      bidWinnerPrice: map['bidWinnerPrice'],
-    );
-  }
+  static Product fromJson(Map<String, dynamic> json) => Product(
+        uid: json['uid'],
+        userId: json['userId'],
+        userFirstName: json['userFirstName'],
+        userLastName: json['userLastName'],
+        productName: json['productName'],
+        productDescription: json['productDescription'],
+        productFile: json['productFile'],
+        productPrice: json['productPrice'],
+        bidWinnerPrice: json['bidWinnerPrice'],
+      );
 
   Map<String, dynamic> toJson() {
     return {
       'uid': uid,
       'userId': userId,
+      'userFirstName': userFirstName,
+      'userLastName': userLastName,
       'productName': productName,
       'productDescription': productDescription,
       'productFile': productFile,

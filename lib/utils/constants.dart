@@ -6,4 +6,4 @@ final bodyTextStyle = TextStyle(
   height: 1.6,
 );
 
-const primaryColor = Color(0xff320C7E);
+const customPrimaryColor = Color(0xff320C7E);
