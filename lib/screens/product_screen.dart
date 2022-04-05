@@ -3,11 +3,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:project/animations/fade_animation.dart';
 import 'package:project/animations/slide_animation.dart';
+import 'package:project/models/product.dart';
 
 import '../utils/constants.dart';
 
 class ProductScreen extends StatelessWidget {
-  const ProductScreen({Key? key}) : super(key: key);
+  final Product product;
+
+  const ProductScreen({Key? key, required this.product}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +31,15 @@ class ProductScreen extends StatelessWidget {
                   border: Border.all(width: 1, color: Colors.black26),
                 ),
                 child: Hero(
-                  tag: '1',
-                  child: Image.asset(
-                    'assets/images/image-1.jpeg',
+                  tag: '${product.productName}',
+                  child: Container(
                     height: 260.h,
-                    fit: BoxFit.cover,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      image: DecorationImage(
+                          image: NetworkImage("${product.productFile}"),
+                          fit: BoxFit.cover),
+                    ),
                   ),
                 ),
               ),
@@ -46,7 +53,7 @@ class ProductScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        'JOUR 74',
+                        "${product.productName}",
                         style: TextStyle(
                           fontSize: 24.r,
                           fontWeight: FontWeight.bold,
@@ -63,9 +70,9 @@ class ProductScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(width: 8.h),
-                          const Text(
-                            '@John Doe',
-                            style: TextStyle(
+                          Text(
+                            '@${product.userFirstName} ${product.userLastName}',
+                            style: const TextStyle(
                               color: Colors.black54,
                             ),
                           ),
@@ -73,7 +80,7 @@ class ProductScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 8.h),
                       Text(
-                        'Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Proin eget tortor risus.',
+                        "${product.productDescription}",
                         style: bodyTextStyle,
                       ),
                       SizedBox(height: 8.h),
@@ -100,7 +107,7 @@ class ProductScreen extends StatelessWidget {
                           ),
                         ),
                         trailing: Text(
-                          '15.97 BTC',
+                          "${product.bidWinnerPrice} BTC",
                           style: TextStyle(
                             fontSize: 16.r,
                             color: Colors.black,
@@ -110,6 +117,7 @@ class ProductScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 16.h),
                       const Button(),
+                      SizedBox(height: 16.h),
                     ],
                   ),
                 ),

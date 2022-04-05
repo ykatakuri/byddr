@@ -99,7 +99,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
         Navigator.push(
             context,
             PageTransition(
-              child: const ProductScreen(),
+              child: ProductScreen(product: product),
               type: PageTransitionType.fadeIn,
             ));
       },
