@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax/iconsax.dart';
@@ -15,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
+  //bool isActive = false;
 
   final Widget _productList = const ProductListScreen();
   final Widget _addProduct = const AddProductScreen();
@@ -48,21 +51,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
   BottomNavigationBarItem profile() {
     return const BottomNavigationBarItem(
-      icon: BottomIcon(icon: Iconsax.profile_2user),
+      icon: const BottomIcon(
+        icon: Iconsax.profile_2user,
+        isActive: false,
+      ),
       label: 'Compte',
     );
   }
 
   BottomNavigationBarItem myProduct() {
     return const BottomNavigationBarItem(
-      icon: BottomIcon(icon: Iconsax.wallet_3),
+      icon: BottomIcon(
+        icon: Iconsax.wallet_3,
+        isActive: false,
+      ),
       label: 'Mes produits',
     );
   }
 
   BottomNavigationBarItem addProduct() {
     return const BottomNavigationBarItem(
-      icon: BottomIcon(icon: Iconsax.add_square),
+      icon: BottomIcon(
+        icon: Iconsax.add_square,
+        isActive: false,
+      ),
       label: 'Vendre',
     );
   }
@@ -70,8 +82,8 @@ class _HomeScreenState extends State<HomeScreen> {
   BottomNavigationBarItem productList() {
     return const BottomNavigationBarItem(
       icon: BottomIcon(
-        icon: Iconsax.home_15,
-        isActive: true,
+        icon: Iconsax.home,
+        isActive: false,
       ),
       label: 'Accueil',
     );
@@ -89,9 +101,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void onTapHandler(int index) {
+  onTapHandler(int index) {
     setState(() {
       selectedIndex = index;
+      //isActive = true;
     });
   }
 }

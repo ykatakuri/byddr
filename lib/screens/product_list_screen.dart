@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:project/animations/page_transition.dart';
 import 'package:project/animations/slide_animation.dart';
+import 'package:project/models/product.dart';
 import 'package:project/models/user.dart';
 import 'package:project/screens/onboarding_screen.dart';
 import 'package:project/screens/product_screen.dart';
@@ -20,7 +21,7 @@ class ProductListScreen extends StatefulWidget {
 class _ProductListScreenState extends State<ProductListScreen> {
   final double _padding = 24;
 
-  late PageController _pageController;
+  PageController _pageController = PageController(initialPage: 0);
 
   User? user = FirebaseAuth.instance.currentUser;
   AppUser loggedInUser = AppUser();
@@ -66,111 +67,122 @@ class _ProductListScreenState extends State<ProductListScreen> {
             begin: Offset(400.w, 0),
             child: SizedBox(
               height: 500,
-              child: PageView.builder(
-                controller: _pageController,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          PageTransition(
-                            child: const ProductScreen(),
-                            type: PageTransitionType.fadeIn,
-                          ));
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(right: 20.w),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        border: Border.all(width: 1, color: Colors.black26),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 12.h,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  'BYDDR ',
-                                  style: TextStyle(
-                                    fontSize: 20.r,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(width: 12.w),
-                                Text(
-                                  'JOUR 74',
-                                  style: TextStyle(
-                                    fontSize: 14.r,
-                                  ),
-                                ),
-                                const Spacer(),
-                                Text(
-                                  '@${loggedInUser.firstName} ${loggedInUser.lastName}',
-                                  style: TextStyle(
-                                    fontSize: 14.r,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Hero(
-                              tag: '$index',
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).primaryColor,
-                                  image: DecorationImage(
-                                    image: AssetImage(
-                                      index % 2 == 0
-                                          ? 'assets/images/image-0.jpg'
-                                          : 'assets/images/image-1.jpeg',
-                                    ),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 12.h),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 12.h,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: const <Widget>[
-                                EventStat(
-                                  title: '20h: 25m: 08s',
-                                  subtitle: 'Temps Restant',
-                                ),
-                                EventStat(
-                                  title: '15.97 BTC',
-                                  subtitle: 'Meilleure Offre',
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
+              child: StreamBuilder<List<Product>>(
+                  stream: readProducts(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(child: Text("Erreur ! ${snapshot.error}"));
+                    } else if (snapshot.hasData) {
+                      final products = snapshot.data!;
+
+                      return PageView(
+                          controller: _pageController,
+                          scrollDirection: Axis.horizontal,
+                          children: products.map(buildProduct).toList());
+                    } else {
+                      return const Center(
+                          child: CircularProgressIndicator(
+                        color: customPrimaryColor,
+                      ));
+                    }
+                  }),
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget buildProduct(Product product) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            PageTransition(
+              child: const ProductScreen(),
+              type: PageTransitionType.fadeIn,
+            ));
+      },
+      child: Container(
+        margin: EdgeInsets.only(right: 20.w),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(width: 1, color: Colors.black26),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12.h,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    '${product.productName}',
+                    style: TextStyle(
+                      fontSize: 20.r,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '@${product.userFirstName} ${product.userLastName}',
+                    style: TextStyle(
+                      fontSize: 14.r,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Hero(
+                tag: '${product.productName}',
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    image: DecorationImage(
+                        image: NetworkImage("${product.productFile}"),
+                        fit: BoxFit.cover),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 12.h),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12.h,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  const EventStat(
+                    title: '20h: 25m: 08s',
+                    subtitle: 'Temps Restant',
+                  ),
+                  EventStat(
+                    title: '${product.productPrice} BTC',
+                    subtitle: 'Meilleure Offre',
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Stream<List<Product>> readProducts() => FirebaseFirestore.instance
+      .collection("products")
+      .snapshots()
+      .map((snapshot) =>
+          snapshot.docs.map((doc) => Product.fromJson(doc.data())).toList());
 }
 
 class _CategoryList extends StatelessWidget {
