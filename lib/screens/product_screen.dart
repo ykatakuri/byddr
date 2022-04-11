@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:project/animations/fade_animation.dart';
 import 'package:project/animations/slide_animation.dart';
@@ -123,7 +124,35 @@ class _ProductScreenState extends State<ProductScreen> {
                         ),
                       ),
                       SizedBox(height: 16.h),
-                      const Button(),
+                      Material(
+                        elevation: 5,
+                        borderRadius: BorderRadius.circular(30),
+                        color: customPrimaryColor,
+                        child: MaterialButton(
+                            padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                            minWidth: MediaQuery.of(context).size.width,
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(60),
+                                  ),
+                                ),
+                                builder: (context) => const Center(
+                                  child: BottomSheetForm(),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              "Faire Une offre",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            )),
+                      ),
                       SizedBox(height: 16.h),
                     ],
                   ),
@@ -132,35 +161,6 @@ class _ProductScreenState extends State<ProductScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class Button extends StatelessWidget {
-  const Button({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 20.w,
-        vertical: 16.h,
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-        color: Colors.black,
-      ),
-      child: ElevatedButton(
-        child: Text(
-          'Faire Une Offre',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.r,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        onPressed: () {},
       ),
     );
   }
@@ -193,6 +193,107 @@ class _AppBar extends StatelessWidget {
           color: Colors.red,
         ),
       ],
+    );
+  }
+}
+
+class BottomSheetForm extends StatefulWidget {
+  const BottomSheetForm({Key? key}) : super(key: key);
+
+  @override
+  State<BottomSheetForm> createState() => _BottomSheetFormState();
+}
+
+class _BottomSheetFormState extends State<BottomSheetForm> {
+  final _formKey = GlobalKey<FormState>();
+
+  final offerEditingController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final priceField = TextFormField(
+      autofocus: false,
+      controller: offerEditingController,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      validator: (value) {
+        if (value!.isEmpty) {
+          return ("Veuillez entrer un prix");
+        }
+        return null;
+      },
+      onSaved: (value) {
+        offerEditingController.text = value!;
+      },
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        labelText: "Montant de l'offre",
+        contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: "Montant de l'offre",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+
+    final cancelButton = Material(
+      elevation: 5,
+      borderRadius: BorderRadius.circular(30),
+      color: Colors.white,
+      child: MaterialButton(
+          padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+          minWidth: 100,
+          onPressed: () => Navigator.pop(context),
+          child: const Text(
+            "Annuler",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold),
+          )),
+    );
+
+    final submitButton = Material(
+      elevation: 5,
+      borderRadius: BorderRadius.circular(30),
+      color: customPrimaryColor,
+      child: MaterialButton(
+          padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+          minWidth: 100,
+          onPressed: () {
+            Fluttertoast.showToast(msg: "Offre envoyée.. ");
+          },
+          child: const Text(
+            "Envoyer",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+          )),
+    );
+
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(36.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              priceField,
+              const SizedBox(
+                height: 40,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  cancelButton,
+                  const SizedBox(width: 15),
+                  submitButton,
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
