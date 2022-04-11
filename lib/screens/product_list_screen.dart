@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +28,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
   User? user = FirebaseAuth.instance.currentUser;
   AppUser loggedInUser = AppUser();
 
+  static const countdownDuration = Duration(minutes: 1);
+  Duration duration = const Duration();
+  Timer? timer;
+
+  bool isCountdown = true;
+
   @override
   void initState() {
     _pageController = PageController(viewportFraction: 0.9);
@@ -39,6 +47,47 @@ class _ProductListScreenState extends State<ProductListScreen> {
       loggedInUser = AppUser.fromMap(value.data());
       setState(() {});
     });
+
+    startTimer();
+    //reset();
+  }
+
+  void reset() {
+    if (isCountdown) {
+      setState(() => duration = countdownDuration);
+    } else {
+      setState(() => duration = const Duration());
+    }
+  }
+
+  void addTime() {
+    final addSeconds = isCountdown ? -1 : 1;
+
+    setState(() {
+      final seconds = duration.inSeconds + addSeconds;
+
+      if (seconds < 0) {
+        timer?.cancel();
+      } else {
+        duration = Duration(seconds: seconds);
+      }
+    });
+  }
+
+  void startTimer({bool resets = true}) {
+    if (resets) {
+      reset();
+    }
+
+    timer = Timer.periodic(const Duration(seconds: 1), (_) => addTime());
+  }
+
+  void stopTimer({bool resets = true}) {
+    if (resets) {
+      reset();
+    }
+
+    setState(() => timer?.cancel());
   }
 
   @override
@@ -161,8 +210,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  const EventStat(
-                    title: '20h: 25m: 08s',
+                  Countdown(
+                    time: buildTime(),
                     subtitle: 'Temps Restant',
                   ),
                   EventStat(
@@ -176,6 +225,47 @@ class _ProductListScreenState extends State<ProductListScreen> {
         ),
       ),
     );
+  }
+
+  Widget buildTime() {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    final hours = twoDigits(duration.inHours);
+    final minutes = twoDigits(duration.inMinutes.remainder(60));
+    final seconds = twoDigits(duration.inSeconds.remainder(60));
+    return Text(
+      "$hours:$minutes:$seconds",
+      style: TextStyle(
+        color: Colors.black,
+        fontSize: 16.r,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget buildButtons() {
+    final isRunning = timer == null ? false : timer!.isActive;
+    final isCompleted = duration.inSeconds == 0;
+
+    return isRunning || !isCompleted
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                  onPressed: () {
+                    if (isRunning) {
+                      stopTimer(resets: false);
+                    } else {
+                      startTimer(resets: false);
+                    }
+                  },
+                  child: Text(isRunning ? "STOP" : "RESUME")),
+              const SizedBox(
+                width: 12,
+              ),
+              TextButton(onPressed: () {}, child: const Text("CANCEL")),
+            ],
+          )
+        : TextButton(onPressed: () {}, child: const Text("START TIMER"));
   }
 
   Stream<List<Product>> readProducts() => FirebaseFirestore.instance

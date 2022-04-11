@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax/iconsax.dart';
@@ -7,11 +9,16 @@ import 'package:project/models/product.dart';
 
 import '../utils/constants.dart';
 
-class ProductScreen extends StatelessWidget {
+class ProductScreen extends StatefulWidget {
   final Product product;
 
   const ProductScreen({Key? key, required this.product}) : super(key: key);
 
+  @override
+  State<ProductScreen> createState() => _ProductScreenState();
+}
+
+class _ProductScreenState extends State<ProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,13 +38,13 @@ class ProductScreen extends StatelessWidget {
                   border: Border.all(width: 1, color: Colors.black26),
                 ),
                 child: Hero(
-                  tag: '${product.productName}',
+                  tag: '${widget.product.productName}',
                   child: Container(
                     height: 260.h,
                     decoration: BoxDecoration(
                       color: Theme.of(context).primaryColor,
                       image: DecorationImage(
-                          image: NetworkImage("${product.productFile}"),
+                          image: NetworkImage("${widget.product.productFile}"),
                           fit: BoxFit.cover),
                     ),
                   ),
@@ -53,7 +60,7 @@ class ProductScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "${product.productName}",
+                        "${widget.product.productName}",
                         style: TextStyle(
                           fontSize: 24.r,
                           fontWeight: FontWeight.bold,
@@ -71,7 +78,7 @@ class ProductScreen extends StatelessWidget {
                           ),
                           SizedBox(width: 8.h),
                           Text(
-                            '@${product.userFirstName} ${product.userLastName}',
+                            '@${widget.product.userFirstName} ${widget.product.userLastName}',
                             style: const TextStyle(
                               color: Colors.black54,
                             ),
@@ -80,7 +87,7 @@ class ProductScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 8.h),
                       Text(
-                        "${product.productDescription}",
+                        "${widget.product.productDescription}",
                         style: bodyTextStyle,
                       ),
                       SizedBox(height: 8.h),
@@ -107,7 +114,7 @@ class ProductScreen extends StatelessWidget {
                           ),
                         ),
                         trailing: Text(
-                          "${product.bidWinnerPrice} BTC",
+                          "${widget.product.bidWinnerPrice} BTC",
                           style: TextStyle(
                             fontSize: 16.r,
                             color: Colors.black,
@@ -144,25 +151,16 @@ class Button extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
         color: Colors.black,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(
-            'Faire Une Offre',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16.r,
-              fontWeight: FontWeight.bold,
-            ),
+      child: ElevatedButton(
+        child: Text(
+          'Faire Une Offre',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16.r,
+            fontWeight: FontWeight.bold,
           ),
-          Text(
-            '20h: 35m: 08s',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18.r,
-            ),
-          ),
-        ],
+        ),
+        onPressed: () {},
       ),
     );
   }

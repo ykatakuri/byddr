@@ -341,3 +341,28 @@ class EventStat extends StatelessWidget {
     );
   }
 }
+
+class Countdown extends StatelessWidget {
+  const Countdown({Key? key, required this.time, required this.subtitle})
+      : super(key: key);
+
+  final Widget time;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        time,
+        SizedBox(height: 8.h),
+        Text(
+          subtitle,
+          style: TextStyle(
+            fontSize: 14.r,
+            color: Colors.black54,
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:project/screens/home_screen.dart';
 import 'package:project/screens/onboarding_screen.dart';
 
 Future<void> main() async {
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.indigo,
         ),
         title: 'BYDDR',
-        home: const OnBoardingScreen(),
+        home: const HomeScreen(),
       );
     }));
   }
