@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:project/animations/fade_animation.dart';
 import 'package:project/animations/slide_animation.dart';
@@ -7,11 +10,16 @@ import 'package:project/models/product.dart';
 
 import '../utils/constants.dart';
 
-class ProductScreen extends StatelessWidget {
+class ProductScreen extends StatefulWidget {
   final Product product;
 
   const ProductScreen({Key? key, required this.product}) : super(key: key);
 
+  @override
+  State<ProductScreen> createState() => _ProductScreenState();
+}
+
+class _ProductScreenState extends State<ProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,13 +39,13 @@ class ProductScreen extends StatelessWidget {
                   border: Border.all(width: 1, color: Colors.black26),
                 ),
                 child: Hero(
-                  tag: '${product.productName}',
+                  tag: '${widget.product.productName}',
                   child: Container(
                     height: 260.h,
                     decoration: BoxDecoration(
                       color: Theme.of(context).primaryColor,
                       image: DecorationImage(
-                          image: NetworkImage("${product.productFile}"),
+                          image: NetworkImage("${widget.product.productFile}"),
                           fit: BoxFit.cover),
                     ),
                   ),
@@ -53,7 +61,7 @@ class ProductScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "${product.productName}",
+                        "${widget.product.productName}",
                         style: TextStyle(
                           fontSize: 24.r,
                           fontWeight: FontWeight.bold,
@@ -71,7 +79,7 @@ class ProductScreen extends StatelessWidget {
                           ),
                           SizedBox(width: 8.h),
                           Text(
-                            '@${product.userFirstName} ${product.userLastName}',
+                            '@${widget.product.userFirstName} ${widget.product.userLastName}',
                             style: const TextStyle(
                               color: Colors.black54,
                             ),
@@ -80,7 +88,7 @@ class ProductScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 8.h),
                       Text(
-                        "${product.productDescription}",
+                        "${widget.product.productDescription}",
                         style: bodyTextStyle,
                       ),
                       SizedBox(height: 8.h),
@@ -107,7 +115,7 @@ class ProductScreen extends StatelessWidget {
                           ),
                         ),
                         trailing: Text(
-                          "${product.bidWinnerPrice} BTC",
+                          "${widget.product.bidWinnerPrice} BTC",
                           style: TextStyle(
                             fontSize: 16.r,
                             color: Colors.black,
@@ -116,7 +124,35 @@ class ProductScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 16.h),
-                      const Button(),
+                      Material(
+                        elevation: 5,
+                        borderRadius: BorderRadius.circular(30),
+                        color: customPrimaryColor,
+                        child: MaterialButton(
+                            padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                            minWidth: MediaQuery.of(context).size.width,
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(60),
+                                  ),
+                                ),
+                                builder: (context) => const Center(
+                                  child: BottomSheetForm(),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              "Faire Une offre",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            )),
+                      ),
                       SizedBox(height: 16.h),
                     ],
                   ),
@@ -125,44 +161,6 @@ class ProductScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class Button extends StatelessWidget {
-  const Button({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 20.w,
-        vertical: 16.h,
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-        color: Colors.black,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(
-            'Faire Une Offre',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16.r,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            '20h: 35m: 08s',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18.r,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -195,6 +193,107 @@ class _AppBar extends StatelessWidget {
           color: Colors.red,
         ),
       ],
+    );
+  }
+}
+
+class BottomSheetForm extends StatefulWidget {
+  const BottomSheetForm({Key? key}) : super(key: key);
+
+  @override
+  State<BottomSheetForm> createState() => _BottomSheetFormState();
+}
+
+class _BottomSheetFormState extends State<BottomSheetForm> {
+  final _formKey = GlobalKey<FormState>();
+
+  final offerEditingController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final priceField = TextFormField(
+      autofocus: false,
+      controller: offerEditingController,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      validator: (value) {
+        if (value!.isEmpty) {
+          return ("Veuillez entrer un prix");
+        }
+        return null;
+      },
+      onSaved: (value) {
+        offerEditingController.text = value!;
+      },
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        labelText: "Montant de l'offre",
+        contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: "Montant de l'offre",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+
+    final cancelButton = Material(
+      elevation: 5,
+      borderRadius: BorderRadius.circular(30),
+      color: Colors.white,
+      child: MaterialButton(
+          padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+          minWidth: 100,
+          onPressed: () => Navigator.pop(context),
+          child: const Text(
+            "Annuler",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold),
+          )),
+    );
+
+    final submitButton = Material(
+      elevation: 5,
+      borderRadius: BorderRadius.circular(30),
+      color: customPrimaryColor,
+      child: MaterialButton(
+          padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+          minWidth: 100,
+          onPressed: () {
+            Fluttertoast.showToast(msg: "Offre envoyée.. ");
+          },
+          child: const Text(
+            "Envoyer",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+          )),
+    );
+
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(36.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              priceField,
+              const SizedBox(
+                height: 40,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  cancelButton,
+                  const SizedBox(width: 15),
+                  submitButton,
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
