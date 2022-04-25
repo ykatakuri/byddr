@@ -20,21 +20,12 @@ class MyProductScreen extends StatefulWidget {
 class _MyProductScreenState extends State<MyProductScreen> {
   final double _padding = 24;
 
-  User? user = FirebaseAuth.instance.currentUser;
-  AppUser loggedInUser = AppUser();
+  // User? user = FirebaseAuth.instance.currentUser;
+  // AppUser loggedInUser = AppUser();
 
   @override
   void initState() {
     super.initState();
-
-    FirebaseFirestore.instance
-        .collection("users")
-        .doc(user!.uid)
-        .get()
-        .then((value) {
-      loggedInUser = AppUser.fromMap(value.data());
-      setState(() {});
-    });
   }
 
   @override
