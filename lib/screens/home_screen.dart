@@ -1,4 +1,4 @@
-import 'dart:ffi';
+// ignore_for_file: unnecessary_const
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

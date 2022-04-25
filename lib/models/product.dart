@@ -22,7 +22,7 @@ class Product {
 
   static Product fromJson(Map<String, dynamic> json) => Product(
         uid: json['uid'],
-        userId: json['userId'],
+        userId: '${json['userId']}',
         userFirstName: json['userFirstName'],
         userLastName: json['userLastName'],
         productName: json['productName'],

@@ -1,15 +1,18 @@
+// ignore_for_file: unused_import, invalid_use_of_visible_for_testing_member, avoid_print
+
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:project/models/product.dart';
-import 'package:project/models/user.dart';
 import 'package:project/screens/onboarding_screen.dart';
 import 'package:project/services/firebase_api.dart';
 import 'package:project/utils/constants.dart';
@@ -26,8 +29,8 @@ class AddProductScreen extends StatefulWidget {
 class _AddProductScreenState extends State<AddProductScreen> {
   final double _padding = 24;
 
-  User? user = FirebaseAuth.instance.currentUser;
-  AppUser loggedInUser = AppUser();
+  //User? user = FirebaseAuth.instance.currentUser;
+  //AppUser loggedInUser = AppUser();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -39,15 +42,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   void initState() {
     super.initState();
-
-    FirebaseFirestore.instance
-        .collection("users")
-        .doc(user!.uid)
-        .get()
-        .then((value) {
-      loggedInUser = AppUser.fromMap(value.data());
-      setState(() {});
-    });
   }
 
   UploadTask? task;
@@ -64,6 +58,38 @@ class _AddProductScreenState extends State<AddProductScreen> {
       setState(() => file = File(path!));
     } on PlatformException catch (e) {
       print('Failed to pick image: $e');
+    }
+  }
+
+  Future selectImage() async {
+    try {
+      final result = await FilePicker.platform
+          .pickFiles(allowMultiple: false, type: FileType.image);
+
+      if (result == null) return;
+
+      final path = result.files.single.path;
+
+      setState(() => file = File(path!));
+    } on PlatformException catch (e) {
+      print('Failed to pick image: $e');
+    }
+  }
+
+  Future takeAPhoto() async {
+    try {
+      final result =
+          await ImagePicker.platform.pickImage(source: ImageSource.camera);
+
+      if (result == null) return;
+
+      final path = result.path;
+
+      //final path = result.files.single.path;
+
+      setState(() => file = File(path));
+    } on PlatformException catch (e) {
+      print('Failed to snap photo: $e');
     }
   }
 
@@ -144,13 +170,26 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
     );
 
-    final selectFileIconButton = IconButton(
-      onPressed: selectFile,
-      icon: const Icon(
-        Icons.attach_file_outlined,
-        color: customPrimaryColor,
-        size: 30,
+    final selectFileActionSheet = CupertinoActionSheet(
+      title: IconButton(
+        onPressed: () {},
+        icon: const Icon(
+          Icons.attach_file_outlined,
+          color: customPrimaryColor,
+          size: 30,
+        ),
       ),
+      message: const Text("Ajouter un fichier"),
+      actions: [
+        CupertinoActionSheetAction(
+            onPressed: selectFile,
+            child: const Text("Sélectionner un fichier")),
+        CupertinoActionSheetAction(
+            onPressed: selectImage,
+            child: const Text("Sélectionner une image")),
+        CupertinoActionSheetAction(
+            onPressed: takeAPhoto, child: const Text("Prendre une photo")),
+      ],
     );
 
     final addButton = Material(
@@ -161,6 +200,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
           minWidth: MediaQuery.of(context).size.width,
           onPressed: () {
+            /*
             final newProduct = Product(
               userId: loggedInUser.uid,
               userFirstName: loggedInUser.firstName,
@@ -172,7 +212,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             );
 
             addProduct(newProduct);
-
+            */
             Fluttertoast.showToast(msg: "Produit mis aux enchères.. ");
 
             productNameEditingController.text = "";
@@ -217,14 +257,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     productDescriptionField,
                     const SizedBox(height: 20),
                     productPriceField,
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        const Text("Selectionner un fichier:"),
-                        selectFileIconButton,
-                      ],
-                    ),
+                    selectFileActionSheet,
                     const SizedBox(
                       height: 20,
                     ),

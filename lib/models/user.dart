@@ -1,26 +1,37 @@
 class AppUser {
-  String? uid;
-  String? email;
-  String? lastName;
-  String? firstName;
+  final int? id;
+  final String? firstname;
+  final String? lastname;
+  final String? username;
+  final String? email;
+  final String? password;
+  final String? passwordConfirmation;
+  final int? idRole;
+  final String? accessToken;
 
-  AppUser({this.uid, this.email, this.lastName, this.firstName});
+  AppUser({
+    required this.id,
+    required this.firstname,
+    required this.lastname,
+    required this.username,
+    required this.email,
+    required this.password,
+    required this.passwordConfirmation,
+    required this.idRole,
+    required this.accessToken,
+  });
 
-  factory AppUser.fromMap(map) {
+  factory AppUser.fromJson(Map<String, dynamic> json) {
     return AppUser(
-      uid: map['uid'],
-      email: map['email'],
-      lastName: map['lastName'],
-      firstName: map['firstName'],
+      id: json['id'],
+      firstname: json['firstname'],
+      lastname: json['lastname'],
+      username: json['username'],
+      email: json['email'],
+      password: json['password'],
+      passwordConfirmation: json['password_confirmation'],
+      idRole: json['id_role'],
+      accessToken: json['access_token'],
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'uid': uid,
-      'email': email,
-      'lastName': lastName,
-      'firstName': firstName,
-    };
   }
 }
