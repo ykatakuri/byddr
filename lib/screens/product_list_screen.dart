@@ -10,6 +10,7 @@ import 'package:project/animations/slide_animation.dart';
 import 'package:project/models/product.dart';
 import 'package:project/screens/onboarding_screen.dart';
 import 'package:project/screens/product_screen.dart';
+import 'package:project/services/product_service.dart';
 import 'package:project/utils/app_url.dart';
 import 'package:project/utils/constants.dart';
 import 'package:http/http.dart' as http;
@@ -40,7 +41,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     _pageController = PageController(viewportFraction: 0.9);
     super.initState();
 
-    futureProduct = fetchProducts();
+    futureProduct = ProductService().fetchProducts();
 
     getToken();
 
@@ -175,7 +176,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   ),
                   const Spacer(),
                   Text(
-                    '@${product.userFirstName} ${product.userLastName}',
+                    '@${product.userId}',
                     style: TextStyle(
                       fontSize: 14.r,
                       color: Colors.black54,
@@ -191,7 +192,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).primaryColor,
                     image: DecorationImage(
-                        image: NetworkImage("${product.productFile}"),
+                        image: NetworkImage(
+                            "${AppURL.baseURL}api/${product.productFile}"),
                         fit: BoxFit.cover),
                   ),
                 ),
@@ -212,7 +214,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   ),
                   EventStat(
                     title: '${product.productPrice} BTC',
-                    subtitle: 'Meilleure Offre',
+                    subtitle: 'Mise à prix',
                   ),
                 ],
               ),

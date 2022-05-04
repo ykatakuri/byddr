@@ -61,4 +61,53 @@ class ProductService {
       throw Exception('Unexpected error occured!');
     }
   }
+
+  List<Product> getProducts() {
+    List<Product> products = [
+      Product(
+        id: 1,
+        productName: 'Product 1',
+        productDescription: 'Product 1 description',
+        productFile: 'assets/images/image-0.jpg',
+        productPrice: 100,
+      ),
+      Product(
+        id: 2,
+        productName: 'Product 2',
+        productDescription: 'Product 2 description',
+        productFile: 'assets/images/image-1.jpg',
+        productPrice: 200,
+      ),
+      Product(
+        id: 3,
+        productName: 'Product 3',
+        productDescription: 'Product 3 description',
+        productFile: 'assets/images/image-0.jpg',
+        productPrice: 300,
+      ),
+      Product(
+        id: 4,
+        productName: 'Product 4',
+        productDescription: 'Product 4 description',
+        productFile: 'assets/images/image-1.jpg',
+        productPrice: 400,
+      ),
+      Product(
+        id: 5,
+        productName: 'Product 5',
+        productDescription: 'Product 5 description',
+        productFile: 'assets/images/image-0.jpg',
+        productPrice: 500,
+      ),
+      Product(
+        id: 6,
+        productName: 'Product 6',
+        productDescription: 'Product 6 description',
+        productFile: 'assets/images/image-1.jpg',
+        productPrice: 600,
+      ),
+    ];
+
+    return products;
+  }
 }

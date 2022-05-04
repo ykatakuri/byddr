@@ -79,7 +79,7 @@ class _ProductScreenState extends State<ProductScreen> {
                           ),
                           SizedBox(width: 8.h),
                           Text(
-                            '@${widget.product.userFirstName} ${widget.product.userLastName}',
+                            '@${widget.product.userId}',
                             style: const TextStyle(
                               color: Colors.black54,
                             ),
@@ -115,7 +115,7 @@ class _ProductScreenState extends State<ProductScreen> {
                           ),
                         ),
                         trailing: Text(
-                          "${widget.product.bidWinnerPrice} BTC",
+                          "30 BTC",
                           style: TextStyle(
                             fontSize: 16.r,
                             color: Colors.black,
@@ -145,7 +145,7 @@ class _ProductScreenState extends State<ProductScreen> {
                               );
                             },
                             child: const Text(
-                              "Faire Une offre",
+                              "Enchérir",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontSize: 20,
