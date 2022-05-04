@@ -1,8 +1,18 @@
-import 'package:firebase_auth/firebase_auth.dart';
+// ignore_for_file: unused_import
+
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:project/screens/profile_screen.dart';
+import 'package:project/models/product.dart';
+import 'package:project/models/user.dart';
+import 'package:project/screens/home_screen.dart';
 import 'package:project/screens/registration_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:project/services/shared_preferences.dart';
+import 'package:project/utils/app_url.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -17,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  final _auth = FirebaseAuth.instance;
+  //final _auth = FirebaseAuth.instance;
 
   String? errorMessage;
 
@@ -87,7 +97,12 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
           minWidth: MediaQuery.of(context).size.width,
           onPressed: () {
-            signIn(emailController.text, passwordController.text);
+            if (_formKey.currentState!.validate()) {
+              signIn(
+                  emailController.text.trim(), passwordController.text.trim());
+            } else {
+              Fluttertoast.showToast(msg: "Veuillez remplir le formulaire");
+            }
           },
           child: const Text(
             "Connexion",
@@ -130,7 +145,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           const Text("Pas de compte? "),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const RegistrationScreen()));
+                              Navigator.pushReplacementNamed(
+                                  context, "/registration");
                             },
                             child: const Text(
                               "S'inscrire",
@@ -151,43 +167,50 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void signIn(String email, String password) async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        await _auth
-            .signInWithEmailAndPassword(email: email, password: password)
-            .then((uid) => {
-          Fluttertoast.showToast(msg: "Login Successful"),
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const ProfileScreen())),
-        });
-      } on FirebaseAuthException catch (error) {
-        switch (error.code) {
-          case "invalid-email":
-            errorMessage = "Your email address appears to be malformed.";
+  Future<bool> setToken(String value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setString('token', value);
+  }
 
-            break;
-          case "wrong-password":
-            errorMessage = "Your password is wrong.";
-            break;
-          case "user-not-found":
-            errorMessage = "User with this email doesn't exist.";
-            break;
-          case "user-disabled":
-            errorMessage = "User with this email has been disabled.";
-            break;
-          case "too-many-requests":
-            errorMessage = "Too many requests";
-            break;
-          case "operation-not-allowed":
-            errorMessage = "Signing in with Email and Password is not enabled.";
-            break;
-          default:
-            errorMessage = "An undefined Error happened.";
-        }
-        Fluttertoast.showToast(msg: errorMessage!);
-      }
+  Future<Map<String, Object>> signIn(String email, String password) async {
+    Map<String, Object> result;
+
+    final response = await http.post(
+      Uri.parse(AppURL.login),
+      headers: <String, String>{
+        "Content-Type": "application/json; charset=UTF-8",
+      },
+      body: jsonEncode(<String, dynamic>{
+        "email": email,
+        "password": password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      var userData = jsonDecode(response.body);
+
+      // now we will create a user model
+      AppUser authUser = AppUser.fromJson(userData);
+
+      print("Token: " + authUser.token!);
+      print("Username: " + authUser.username!);
+
+      // now we will create shared preferences and save data
+      //await UserPreferences().saveUser(authUser);
+
+      Fluttertoast.showToast(msg: "Content de vous revoir...");
+
+      Navigator.pushReplacementNamed(context, "/home");
+
+      result = {'status': true, 'message': 'Compte créé', 'data': authUser};
+    } else {
+      Fluttertoast.showToast(msg: "Oops...Une erreur est survenue!");
+      result = {
+        'status': false,
+        'message': 'Echec lors de la création du compte',
+        'data': response
+      };
     }
+    return result;
   }
 }
-

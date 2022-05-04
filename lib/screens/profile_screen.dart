@@ -1,8 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:project/models/user.dart';
 import 'package:project/screens/login_screen.dart';
+import 'package:project/services/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -13,22 +16,11 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   static const primaryColor = Color(0xff320C7E);
-
-  User? user = FirebaseAuth.instance.currentUser;
-  AppUser loggedInUser = AppUser();
+  late UserPreferences _userPreferences;
 
   @override
   void initState() {
     super.initState();
-
-    FirebaseFirestore.instance
-        .collection("users")
-        .doc(user!.uid)
-        .get()
-        .then((value) {
-      loggedInUser = AppUser.fromMap(value.data());
-      setState(() {});
-    });
   }
 
   @override
@@ -65,15 +57,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(
                 height: 10,
               ),
-              Text("${loggedInUser.firstName} ${loggedInUser.lastName}",
-                  style: const TextStyle(
-                    color: Colors.black54,
-                    fontWeight: FontWeight.w500,
-                  )),
+              Text(
+                "username",
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               const SizedBox(
                 height: 10,
               ),
-              Text("${loggedInUser.email}",
+              Text("jdoe@app.com",
                   style: const TextStyle(
                     color: Colors.black54,
                     fontWeight: FontWeight.w500,
@@ -94,8 +88,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> logout(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LoginScreen()));
+    Fluttertoast.showToast(msg: "Au revoir.. ");
+    //UserPreferences().removeUser();
+    Navigator.pushReplacementNamed(context, '/login');
   }
 }
