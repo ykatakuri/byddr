@@ -16,8 +16,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int selectedIndex = 0;
-  //bool isActive = false;
+  int currentIndex = 0;
+  bool isActive = false;
 
   final Widget _productList = const ProductListScreen();
   final Widget _addProduct = const AddProductScreen();
@@ -32,10 +32,11 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         iconSize: 22.r,
         selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.black,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
+        unselectedItemColor: Colors.black54,
+        //showSelectedLabels: true,
+        //showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
+        currentIndex: currentIndex,
         items: [
           productList(),
           addProduct(),
@@ -43,7 +44,9 @@ class _HomeScreenState extends State<HomeScreen> {
           profile(),
         ],
         onTap: (int index) {
-          onTapHandler(index);
+          setState(() {
+            currentIndex = index;
+          });
         },
       ),
     );
@@ -53,7 +56,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return const BottomNavigationBarItem(
       icon: const BottomIcon(
         icon: Iconsax.profile_2user,
-        isActive: false,
       ),
       label: 'Compte',
     );
@@ -63,7 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return const BottomNavigationBarItem(
       icon: BottomIcon(
         icon: Iconsax.wallet_3,
-        isActive: false,
       ),
       label: 'Mes produits',
     );
@@ -73,7 +74,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return const BottomNavigationBarItem(
       icon: BottomIcon(
         icon: Iconsax.add_square,
-        isActive: false,
       ),
       label: 'Vendre',
     );
@@ -82,19 +82,18 @@ class _HomeScreenState extends State<HomeScreen> {
   BottomNavigationBarItem productList() {
     return const BottomNavigationBarItem(
       icon: BottomIcon(
-        icon: Iconsax.home,
-        isActive: false,
+        icon: Iconsax.shop,
       ),
-      label: 'Accueil',
+      label: 'Shop',
     );
   }
 
   Widget getBody() {
-    if (selectedIndex == 0) {
+    if (currentIndex == 0) {
       return _productList;
-    } else if (selectedIndex == 1) {
+    } else if (currentIndex == 1) {
       return _addProduct;
-    } else if (selectedIndex == 2) {
+    } else if (currentIndex == 2) {
       return _myProduct;
     } else {
       return _profile;
@@ -103,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   onTapHandler(int index) {
     setState(() {
-      selectedIndex = index;
+      currentIndex = index;
       //isActive = true;
     });
   }

@@ -3,8 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:project/models/user.dart';
-import 'package:project/screens/home_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:project/services/shared_preferences.dart';
+import 'package:project/utils/app_url.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -191,14 +192,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
           minWidth: MediaQuery.of(context).size.width,
           onPressed: () {
-            signUp(
-                firstnameEditingController.text.trim(),
-                lastnameEditingController.text.trim(),
-                usernameEditingController.text.trim(),
-                emailEditingController.text.trim(),
-                passwordEditingController.text.trim(),
-                confirmPasswordEditingController.text.trim(),
-                3);
+            if (_formKey.currentState!.validate()) {
+              signUp(
+                  firstnameEditingController.text.trim(),
+                  lastnameEditingController.text.trim(),
+                  usernameEditingController.text.trim(),
+                  emailEditingController.text.trim(),
+                  passwordEditingController.text.trim(),
+                  confirmPasswordEditingController.text.trim(),
+                  3);
+            } else {
+              Fluttertoast.showToast(msg: "Veuillez remplir le formulaire");
+            }
           },
           child: const Text(
             "S'inscrire",
@@ -268,7 +273,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     return prefs.setString('token', value);
   }
 
-  Future<AppUser> signUp(
+  Future<Map<String, Object>> signUp(
       String firstname,
       String lastname,
       String username,
@@ -276,8 +281,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       String password,
       String passwordConfirmation,
       int idRole) async {
+    Map<String, Object> result;
+
     final response = await http.post(
-      Uri.parse("https://encheres-ynov.herokuapp.com/api/auth/register"),
+      Uri.parse(AppURL.registration),
       headers: <String, String>{
         "Content-Type": "application/json; charset=UTF-8",
       },
@@ -292,24 +299,30 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       }),
     );
 
-    if (_formKey.currentState!.validate() && response.statusCode == 200) {
-      String? token = AppUser.fromJson(json.decode(response.body)).accessToken;
+    if (response.statusCode == 200) {
+      var userData = jsonDecode(response.body);
 
-      print('REGISTRATION TOKEN: $token');
+      // now we will create a user model
+      AppUser authUser = AppUser.fromJson(userData);
 
-      setToken(token!);
+      print(authUser);
 
-      Fluttertoast.showToast(msg: "Compte créé avec succès.. ");
+      //await UserPreferences.setToken(authUser.token!);
+      //await UserPreferences.setUsername(authUser.username!);
 
-      Navigator.pushAndRemoveUntil(
-          (context),
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-          (route) => false);
+      Fluttertoast.showToast(msg: "Bienvenue...");
 
-      return AppUser.fromJson(jsonDecode(response.body));
+      Navigator.pushReplacementNamed(context, "/home");
+
+      result = {'status': true, 'message': 'Compte créé', 'data': authUser};
     } else {
       Fluttertoast.showToast(msg: "Erreur lors de la création du compte.");
-      throw Exception('Failed to create the user.');
+      result = {
+        'status': false,
+        'message': 'Echec de la création du compte',
+        'data': response
+      };
     }
+    return result;
   }
 }

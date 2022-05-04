@@ -1,37 +1,47 @@
 class AppUser {
-  final int? id;
-  final String? firstname;
-  final String? lastname;
-  final String? username;
-  final String? email;
-  final String? password;
-  final String? passwordConfirmation;
-  final int? idRole;
-  final String? accessToken;
+  int? id;
+  String? firstname;
+  String? lastname;
+  String? username;
+  String? email;
+  String? password;
+  String? passwordConfirmation;
+  int? idRole;
+  String? token;
+  String? renewalToken;
 
   AppUser({
-    required this.id,
-    required this.firstname,
-    required this.lastname,
-    required this.username,
-    required this.email,
-    required this.password,
-    required this.passwordConfirmation,
-    required this.idRole,
-    required this.accessToken,
+    this.id,
+    this.firstname,
+    this.lastname,
+    this.username,
+    this.email,
+    this.password,
+    this.passwordConfirmation,
+    this.idRole,
+    this.token,
+    this.renewalToken,
   });
 
   factory AppUser.fromJson(Map<String, dynamic> json) {
     return AppUser(
       id: json['id'],
-      firstname: json['firstname'],
-      lastname: json['lastname'],
-      username: json['username'],
-      email: json['email'],
+      firstname: json['user']['firstname'],
+      lastname: json['user']['lastname'],
+      username: json['user']['username'],
+      email: json['user']['email'],
       password: json['password'],
       passwordConfirmation: json['password_confirmation'],
       idRole: json['id_role'],
-      accessToken: json['access_token'],
+      token: json['access_token'],
+      renewalToken: json['access_token'],
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'firstname': firstname,
+        'lastname': lastname,
+        'username': username,
+        'email': email,
+      };
 }

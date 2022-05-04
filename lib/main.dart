@@ -1,12 +1,10 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:project/screens/home_screen.dart';
 import 'package:project/screens/login_screen.dart';
+import 'package:project/screens/registration_screen.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-
+void main() {
   runApp(const MyApp());
 }
 
@@ -24,6 +22,11 @@ class MyApp extends StatelessWidget {
         ),
         title: 'BYDDR',
         home: const LoginScreen(),
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/registration': (context) => const RegistrationScreen(),
+          '/home': (context) => const HomeScreen()
+        },
       );
     }));
   }

@@ -7,5 +7,3 @@ final bodyTextStyle = TextStyle(
 );
 
 const customPrimaryColor = Color(0xff320C7E);
-
-String baseUrl = "https://encheres-ynov.herokuapp.com/api";

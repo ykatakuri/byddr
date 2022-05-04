@@ -2,9 +2,6 @@
 
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +11,6 @@ import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project/models/product.dart';
 import 'package:project/screens/onboarding_screen.dart';
-import 'package:project/services/firebase_api.dart';
 import 'package:project/utils/constants.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart';
@@ -29,9 +25,6 @@ class AddProductScreen extends StatefulWidget {
 class _AddProductScreenState extends State<AddProductScreen> {
   final double _padding = 24;
 
-  //User? user = FirebaseAuth.instance.currentUser;
-  //AppUser loggedInUser = AppUser();
-
   final _formKey = GlobalKey<FormState>();
 
   final productNameEditingController = TextEditingController();
@@ -44,7 +37,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     super.initState();
   }
 
-  UploadTask? task;
   File? file;
 
   Future selectFile() async {
@@ -280,45 +272,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  Future addProduct(Product product) async {
-    final docProduct = FirebaseFirestore.instance.collection("products").doc();
-    if (file == null) return;
-
-    final fileName = basename(file!.path);
-    final destination = 'files/$fileName';
-
-    task = FirebaseApi.uploadFile(destination, file!);
-    setState(() {});
-
-    if (task == null) return;
-
-    final snapshot = await task!.whenComplete(() {});
-    final urlDownload = await snapshot.ref.getDownloadURL();
-
-    product.uid = docProduct.id;
-    product.productFile = urlDownload.toString();
-
-    final json = product.toJson();
-    await docProduct.set(json);
-  }
-
-  Widget buildUploadStatus(UploadTask task) => StreamBuilder<TaskSnapshot>(
-        stream: task.snapshotEvents,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final snap = snapshot.data!;
-            final progress = snap.bytesTransferred / snap.totalBytes;
-            final percentage = (progress * 100).toStringAsFixed(0);
-
-            return Text(
-              '$percentage %',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            );
-          } else {
-            return Container();
-          }
-        },
-      );
+  Future addProduct(Product product) async {}
 }
 
 class _Header extends StatelessWidget {

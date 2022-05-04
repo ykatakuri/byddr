@@ -3,7 +3,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:project/models/product.dart';
@@ -11,6 +10,8 @@ import 'package:project/models/user.dart';
 import 'package:project/screens/home_screen.dart';
 import 'package:project/screens/registration_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:project/services/shared_preferences.dart';
+import 'package:project/utils/app_url.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -96,7 +97,12 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
           minWidth: MediaQuery.of(context).size.width,
           onPressed: () {
-            signIn(emailController.text.trim(), passwordController.text.trim());
+            if (_formKey.currentState!.validate()) {
+              signIn(
+                  emailController.text.trim(), passwordController.text.trim());
+            } else {
+              Fluttertoast.showToast(msg: "Veuillez remplir le formulaire");
+            }
           },
           child: const Text(
             "Connexion",
@@ -139,11 +145,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           const Text("Pas de compte? "),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const RegistrationScreen()));
+                              Navigator.pushReplacementNamed(
+                                  context, "/registration");
                             },
                             child: const Text(
                               "S'inscrire",
@@ -169,9 +172,11 @@ class _LoginScreenState extends State<LoginScreen> {
     return prefs.setString('token', value);
   }
 
-  Future<AppUser> signIn(String email, String password) async {
+  Future<Map<String, Object>> signIn(String email, String password) async {
+    Map<String, Object> result;
+
     final response = await http.post(
-      Uri.parse("https://encheres-ynov.herokuapp.com/api/auth/login"),
+      Uri.parse(AppURL.login),
       headers: <String, String>{
         "Content-Type": "application/json; charset=UTF-8",
       },
@@ -181,25 +186,31 @@ class _LoginScreenState extends State<LoginScreen> {
       }),
     );
 
-    if (_formKey.currentState!.validate() && response.statusCode == 200) {
-      String? token = AppUser.fromJson(json.decode(response.body)).accessToken;
+    if (response.statusCode == 200) {
+      var userData = jsonDecode(response.body);
 
-      print('LOGIN TOKEN: $token');
+      // now we will create a user model
+      AppUser authUser = AppUser.fromJson(userData);
 
-      setToken(token!);
+      print("Token: " + authUser.token!);
+      print("Username: " + authUser.username!);
 
-      Fluttertoast.showToast(msg: "Connexion réussie.. ");
+      // now we will create shared preferences and save data
+      //await UserPreferences().saveUser(authUser);
 
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
-        ),
-      );
+      Fluttertoast.showToast(msg: "Content de vous revoir...");
 
-      return AppUser.fromJson(jsonDecode(response.body));
+      Navigator.pushReplacementNamed(context, "/home");
+
+      result = {'status': true, 'message': 'Compte créé', 'data': authUser};
     } else {
-      Fluttertoast.showToast(msg: "Erreur lors de la connexion.");
-      throw Exception('Failed to login the user.');
+      Fluttertoast.showToast(msg: "Oops...Une erreur est survenue!");
+      result = {
+        'status': false,
+        'message': 'Echec lors de la création du compte',
+        'data': response
+      };
     }
+    return result;
   }
 }

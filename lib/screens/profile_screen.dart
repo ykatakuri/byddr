@@ -1,11 +1,10 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:project/models/user.dart';
 import 'package:project/screens/login_screen.dart';
+import 'package:project/services/shared_preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -17,6 +16,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   static const primaryColor = Color(0xff320C7E);
+  late UserPreferences _userPreferences;
 
   @override
   void initState() {
@@ -57,11 +57,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(
                 height: 10,
               ),
-              const Text("John Doe",
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontWeight: FontWeight.w500,
-                  )),
+              Text(
+                "username",
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               const SizedBox(
                 height: 10,
               ),
@@ -85,16 +87,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Future<bool> setToken(String value) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.setString('token', value);
-  }
-
   Future<void> logout(BuildContext context) async {
-    setToken("");
     Fluttertoast.showToast(msg: "Au revoir.. ");
-    await FirebaseAuth.instance.signOut();
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LoginScreen()));
+    //UserPreferences().removeUser();
+    Navigator.pushReplacementNamed(context, '/login');
   }
 }

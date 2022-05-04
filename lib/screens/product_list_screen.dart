@@ -10,6 +10,7 @@ import 'package:project/animations/slide_animation.dart';
 import 'package:project/models/product.dart';
 import 'package:project/screens/onboarding_screen.dart';
 import 'package:project/screens/product_screen.dart';
+import 'package:project/utils/app_url.dart';
 import 'package:project/utils/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -274,7 +275,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     print('AUTH USER TOKEN: $token');
 
     final response = await http.get(
-      Uri.parse('https://jsonplaceholder.typicode.com/albums/'),
+      Uri.parse(AppURL.products),
       // Send authorization headers to the backend.
       headers: {
         HttpHeaders.authorizationHeader: '{Bearer $token}',
