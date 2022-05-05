@@ -8,6 +8,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:project/animations/page_transition.dart';
 import 'package:project/animations/slide_animation.dart';
 import 'package:project/models/product.dart';
+import 'package:project/models/user.dart';
 import 'package:project/screens/onboarding_screen.dart';
 import 'package:project/screens/product_screen.dart';
 import 'package:project/services/product_service.dart';
@@ -25,6 +26,8 @@ class ProductListScreen extends StatefulWidget {
 
 class _ProductListScreenState extends State<ProductListScreen> {
   late Future<List<Product>> futureProduct;
+  late Future<AppUser> futureProductUser;
+  late int productId;
 
   final double _padding = 24;
 
@@ -42,6 +45,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
     super.initState();
 
     futureProduct = ProductService().fetchProducts();
+
+    productId = 1;
+
+    futureProductUser = ProductService().fetchProductUser(productId);
 
     getToken();
 
@@ -140,6 +147,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Widget buildProduct(Product product) {
+    productId = product.id!;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -193,7 +202,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     color: Theme.of(context).primaryColor,
                     image: DecorationImage(
                         image: NetworkImage(
-                            "${AppURL.baseURL}api/${product.productFile}"),
+                            "${AppURL.baseURL}img/${product.productFile}"),
                         fit: BoxFit.cover),
                   ),
                 ),

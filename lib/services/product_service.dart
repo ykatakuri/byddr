@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:project/models/product.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:project/models/user.dart';
 import 'package:project/utils/app_url.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,7 +15,7 @@ class ProductService {
   }
 
   Future<Product> createProduct(String productName, String productDescription,
-      String productFilePath, String productPrice) async {
+      String productFilePath, int productPrice) async {
     final token = await getToken();
 
     //final token =
@@ -62,52 +63,17 @@ class ProductService {
     }
   }
 
-  List<Product> getProducts() {
-    List<Product> products = [
-      Product(
-        id: 1,
-        productName: 'Product 1',
-        productDescription: 'Product 1 description',
-        productFile: 'assets/images/image-0.jpg',
-        productPrice: 100,
-      ),
-      Product(
-        id: 2,
-        productName: 'Product 2',
-        productDescription: 'Product 2 description',
-        productFile: 'assets/images/image-1.jpg',
-        productPrice: 200,
-      ),
-      Product(
-        id: 3,
-        productName: 'Product 3',
-        productDescription: 'Product 3 description',
-        productFile: 'assets/images/image-0.jpg',
-        productPrice: 300,
-      ),
-      Product(
-        id: 4,
-        productName: 'Product 4',
-        productDescription: 'Product 4 description',
-        productFile: 'assets/images/image-1.jpg',
-        productPrice: 400,
-      ),
-      Product(
-        id: 5,
-        productName: 'Product 5',
-        productDescription: 'Product 5 description',
-        productFile: 'assets/images/image-0.jpg',
-        productPrice: 500,
-      ),
-      Product(
-        id: 6,
-        productName: 'Product 6',
-        productDescription: 'Product 6 description',
-        productFile: 'assets/images/image-1.jpg',
-        productPrice: 600,
-      ),
-    ];
+  Future<AppUser> fetchProductUser(int productId) async {
+    final response = await http.get(
+      Uri.parse('${AppURL.baseURL}api/produit/$productId/user'),
+    );
 
-    return products;
+    if (response.statusCode == 200) {
+      var responseJson = jsonDecode(response.body);
+
+      return AppUser.fromJson(responseJson);
+    } else {
+      throw Exception('Unexpected error occured!');
+    }
   }
 }

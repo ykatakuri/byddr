@@ -11,6 +11,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project/models/product.dart';
 import 'package:project/screens/onboarding_screen.dart';
+import 'package:project/services/product_service.dart';
 import 'package:project/utils/constants.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart';
@@ -153,9 +154,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
       },
       textInputAction: TextInputAction.next,
       decoration: InputDecoration(
-        labelText: "Prix de vente du produit",
+        labelText: "Mise à prix",
         contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
-        hintText: "Prix de vente du produit",
+        hintText: "Mise à prix du produit",
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
         ),
@@ -192,19 +193,21 @@ class _AddProductScreenState extends State<AddProductScreen> {
           padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
           minWidth: MediaQuery.of(context).size.width,
           onPressed: () {
-            /*
-            final newProduct = Product(
-              userId: loggedInUser.uid,
-              userFirstName: loggedInUser.firstName,
-              userLastName: loggedInUser.lastName,
-              productName: productNameEditingController.text,
-              productDescription: productDescriptionEditingController.text,
-              productPrice: double.parse(productPriceEditingController.text),
-              bidWinnerPrice: 0.0,
-            );
+            final String productName, productDescription, productFile;
+            final int productPrice;
 
-            addProduct(newProduct);
-            */
+            if (_formKey.currentState!.validate()) {
+              _formKey.currentState!.save();
+
+              productName = productNameEditingController.text;
+              productDescription = productDescriptionEditingController.text;
+              productFile = fileName;
+              productPrice = int.parse(productPriceEditingController.text);
+
+              addProduct(
+                  productName, productDescription, productFile, productPrice);
+            }
+
             Fluttertoast.showToast(msg: "Produit mis aux enchères.. ");
 
             productNameEditingController.text = "";
@@ -272,7 +275,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  Future addProduct(Product product) async {}
+  Future addProduct(String productName, String productDescription,
+      String productFile, int productPrice) async {
+    await ProductService().createProduct(
+        productName, productDescription, productFile, productPrice);
+  }
 }
 
 class _Header extends StatelessWidget {
