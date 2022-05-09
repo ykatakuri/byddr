@@ -1,12 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:project/models/user.dart';
-import 'package:http/http.dart' as http;
-import 'package:project/services/shared_preferences.dart';
-import 'package:project/utils/app_url.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get/instance_manager.dart';
+import 'package:project/controllers/registration_controller.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
@@ -16,26 +11,19 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  //final _auth = FirebaseAuth.instance;
-
   String? errorMessage;
 
   static const primaryColor = Color(0xff320C7E);
 
   final _formKey = GlobalKey<FormState>();
 
-  final firstnameEditingController = TextEditingController();
-  final lastnameEditingController = TextEditingController();
-  final usernameEditingController = TextEditingController();
-  final emailEditingController = TextEditingController();
-  final passwordEditingController = TextEditingController();
-  final confirmPasswordEditingController = TextEditingController();
+  var registrationController = Get.put(RegistrationController());
 
   @override
   Widget build(BuildContext context) {
     final firstnameField = TextFormField(
         autofocus: false,
-        controller: firstnameEditingController,
+        controller: registrationController.firstnameEditingController,
         keyboardType: TextInputType.name,
         validator: (value) {
           RegExp regex = RegExp(r'^.{3,}$');
@@ -48,7 +36,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           return null;
         },
         onSaved: (value) {
-          firstnameEditingController.text = value!;
+          registrationController.firstnameEditingController.text = value!;
         },
         textInputAction: TextInputAction.next,
         decoration: InputDecoration(
@@ -62,7 +50,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     final lastnameField = TextFormField(
         autofocus: false,
-        controller: lastnameEditingController,
+        controller: registrationController.lastnameEditingController,
         keyboardType: TextInputType.name,
         validator: (value) {
           if (value!.isEmpty) {
@@ -71,7 +59,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           return null;
         },
         onSaved: (value) {
-          lastnameEditingController.text = value!;
+          registrationController.lastnameEditingController.text = value!;
         },
         textInputAction: TextInputAction.next,
         decoration: InputDecoration(
@@ -85,7 +73,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     final usernameField = TextFormField(
         autofocus: false,
-        controller: usernameEditingController,
+        controller: registrationController.usernameEditingController,
         keyboardType: TextInputType.name,
         validator: (value) {
           if (value!.isEmpty) {
@@ -94,7 +82,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           return null;
         },
         onSaved: (value) {
-          usernameEditingController.text = value!;
+          registrationController.usernameEditingController.text = value!;
         },
         textInputAction: TextInputAction.next,
         decoration: InputDecoration(
@@ -108,7 +96,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     final emailField = TextFormField(
         autofocus: false,
-        controller: emailEditingController,
+        controller: registrationController.emailEditingController,
         keyboardType: TextInputType.emailAddress,
         validator: (value) {
           if (value!.isEmpty) {
@@ -121,7 +109,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           return null;
         },
         onSaved: (value) {
-          emailEditingController.text = value!;
+          registrationController.emailEditingController.text = value!;
         },
         textInputAction: TextInputAction.next,
         decoration: InputDecoration(
@@ -135,7 +123,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     final passwordField = TextFormField(
         autofocus: false,
-        controller: passwordEditingController,
+        controller: registrationController.passwordEditingController,
         obscureText: true,
         validator: (value) {
           RegExp regex = RegExp(r'^.{6,}$');
@@ -148,7 +136,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           return null;
         },
         onSaved: (value) {
-          passwordEditingController.text = value!;
+          registrationController.passwordEditingController.text = value!;
         },
         textInputAction: TextInputAction.next,
         decoration: InputDecoration(
@@ -162,17 +150,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     final confirmPasswordField = TextFormField(
         autofocus: false,
-        controller: confirmPasswordEditingController,
+        controller: registrationController.confirmPasswordEditingController,
         obscureText: true,
         validator: (value) {
-          if (confirmPasswordEditingController.text !=
-              passwordEditingController.text) {
+          if (registrationController.passwordEditingController.text !=
+              registrationController.confirmPasswordEditingController.text) {
             return "Le mot de passe ne correspond pas";
           }
           return null;
         },
         onSaved: (value) {
-          confirmPasswordEditingController.text = value!;
+          registrationController.confirmPasswordEditingController.text = value!;
         },
         textInputAction: TextInputAction.done,
         decoration: InputDecoration(
@@ -193,14 +181,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           minWidth: MediaQuery.of(context).size.width,
           onPressed: () {
             if (_formKey.currentState!.validate()) {
-              signUp(
-                  firstnameEditingController.text.trim(),
-                  lastnameEditingController.text.trim(),
-                  usernameEditingController.text.trim(),
-                  emailEditingController.text.trim(),
-                  passwordEditingController.text.trim(),
-                  confirmPasswordEditingController.text.trim(),
-                  3);
+              registrationController.registrer();
             } else {
               Fluttertoast.showToast(msg: "Veuillez remplir le formulaire");
             }
@@ -266,63 +247,5 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         ),
       ),
     );
-  }
-
-  Future<bool> setToken(String value) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.setString('token', value);
-  }
-
-  Future<Map<String, Object>> signUp(
-      String firstname,
-      String lastname,
-      String username,
-      String email,
-      String password,
-      String passwordConfirmation,
-      int idRole) async {
-    Map<String, Object> result;
-
-    final response = await http.post(
-      Uri.parse(AppURL.registration),
-      headers: <String, String>{
-        "Content-Type": "application/json; charset=UTF-8",
-      },
-      body: jsonEncode(<String, dynamic>{
-        "firstname": firstname,
-        "lastname": lastname,
-        "username": username,
-        "email": email,
-        "password": password,
-        "password_confirmation": passwordConfirmation,
-        "id_role": idRole
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      var userData = jsonDecode(response.body);
-
-      // now we will create a user model
-      AppUser authUser = AppUser.fromJson(userData);
-
-      print(authUser);
-
-      //await UserPreferences.setToken(authUser.token!);
-      //await UserPreferences.setUsername(authUser.username!);
-
-      Fluttertoast.showToast(msg: "Bienvenue...");
-
-      Navigator.pushReplacementNamed(context, "/home");
-
-      result = {'status': true, 'message': 'Compte créé', 'data': authUser};
-    } else {
-      Fluttertoast.showToast(msg: "Erreur lors de la création du compte.");
-      result = {
-        'status': false,
-        'message': 'Echec de la création du compte',
-        'data': response
-      };
-    }
-    return result;
   }
 }

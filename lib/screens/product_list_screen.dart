@@ -4,12 +4,17 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:project/animations/page_transition.dart';
 import 'package:project/animations/slide_animation.dart';
+import 'package:project/controllers/home_controller.dart';
 import 'package:project/models/product.dart';
+import 'package:project/models/user.dart';
 import 'package:project/screens/onboarding_screen.dart';
 import 'package:project/screens/product_screen.dart';
+import 'package:project/services/network_handler.dart';
+import 'package:project/services/product_service.dart';
 import 'package:project/utils/app_url.dart';
 import 'package:project/utils/constants.dart';
 import 'package:http/http.dart' as http;
@@ -24,6 +29,8 @@ class ProductListScreen extends StatefulWidget {
 
 class _ProductListScreenState extends State<ProductListScreen> {
   late Future<List<Product>> futureProduct;
+  late Future<AppUser> futureProductUser;
+  late int productId;
 
   final double _padding = 24;
 
@@ -40,9 +47,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
     _pageController = PageController(viewportFraction: 0.9);
     super.initState();
 
-    futureProduct = fetchProducts();
+    futureProduct = ProductService().fetchProducts();
 
-    getToken();
+    productId = 1;
+
+    futureProductUser = ProductService().fetchProductOwner(productId);
 
     startTimer();
     //reset();
@@ -139,6 +148,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Widget buildProduct(Product product) {
+    productId = product.id!;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -173,14 +184,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const Spacer(),
-                  Text(
-                    '@${product.userFirstName} ${product.userLastName}',
-                    style: TextStyle(
-                      fontSize: 14.r,
-                      color: Colors.black54,
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -191,7 +194,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).primaryColor,
                     image: DecorationImage(
-                        image: NetworkImage("${product.productFile}"),
+                        image: NetworkImage(
+                            "${AppURL.baseURL}img/${product.productFile}"),
                         fit: BoxFit.cover),
                   ),
                 ),
@@ -212,7 +216,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   ),
                   EventStat(
                     title: '${product.productPrice} BTC',
-                    subtitle: 'Meilleure Offre',
+                    subtitle: 'Mise à prix',
                   ),
                 ],
               ),
@@ -262,32 +266,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
             ],
           )
         : TextButton(onPressed: () {}, child: const Text("START TIMER"));
-  }
-
-  Future<String?> getToken() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
-  }
-
-  Future<List<Product>> fetchProducts() async {
-    final token = await getToken();
-
-    print('AUTH USER TOKEN: $token');
-
-    final response = await http.get(
-      Uri.parse(AppURL.products),
-      // Send authorization headers to the backend.
-      headers: {
-        HttpHeaders.authorizationHeader: '{Bearer $token}',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      List responseJson = jsonDecode(response.body);
-      return responseJson.map((product) => Product.fromJson(product)).toList();
-    } else {
-      throw Exception('Unexpected error occured!');
-    }
   }
 }
 

@@ -1,95 +1,150 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:project/models/user.dart';
-import 'package:project/screens/login_screen.dart';
-import 'package:project/services/shared_preferences.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get/get.dart';
+import 'package:project/controllers/home_controller.dart';
+import 'package:project/utils/constants.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+class ProfileScreen extends StatelessWidget {
+  ProfileScreen({Key? key}) : super(key: key);
 
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
+  final double topContainerHeight = 190.0;
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  static const primaryColor = Color(0xff320C7E);
-  late UserPreferences _userPreferences;
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  var homeController = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Bienvenue",
-          style: TextStyle(color: primaryColor),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        backgroundColor: Colors.white,
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(
-                height: 100,
-                child:
-                    Image.asset("assets/images/logo.png", fit: BoxFit.contain),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const Text(
-                "Content de vous revoir..",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Text(
-                "username",
-                style: TextStyle(
-                  color: Colors.black54,
-                  fontWeight: FontWeight.w500,
+      body: SingleChildScrollView(
+        child: Column(children: [
+          SizedBox(
+            height: topContainerHeight,
+            child: Stack(
+              children: [
+                Column(
+                  children: [
+                    Container(
+                      height: topContainerHeight * .58,
+                      color: Colors.deepPurple,
+                    ),
+                    Container(
+                      height: topContainerHeight * .42,
+                      color: Colors.white,
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Text("jdoe@app.com",
-                  style: const TextStyle(
-                    color: Colors.black54,
-                    fontWeight: FontWeight.w500,
-                  )),
-              const SizedBox(
-                height: 15,
-              ),
-              ActionChip(
-                  label: const Text("Déconnexion"),
-                  onPressed: () {
-                    logout(context);
-                  }),
-            ],
+                Positioned(
+                  bottom: 20,
+                  child: SizedBox(
+                    height: 132,
+                    width: 132,
+                    child: Card(
+                      child: Container(
+                        padding: const EdgeInsets.all(25),
+                        child: Image.asset("assets/images/user.png",
+                            color: Colors.black26),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 160,
+                  bottom: 22,
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Colors.red)),
+                    onPressed: () {
+                      homeController.logout();
+                    },
+                    child: SizedBox(
+                        width: MediaQuery.of(context).size.width - 215,
+                        height: 45,
+                        child: const Center(child: Text("Déconnexion"))),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+          const SizedBox(height: 20),
+          Container(
+            color: Colors.white,
+            child: const ListTile(
+              leading: Icon(Icons.favorite, color: Colors.amber),
+              title: Text('Favoris'),
+              trailing: Icon(Icons.chevron_right),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            color: Colors.white,
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(
+                    Icons.account_box,
+                    color: Colors.amber,
+                  ),
+                  title: Text('Compte'),
+                  trailing: Icon(Icons.chevron_right),
+                  onTap: () async {
+                    Fluttertoast.showToast(
+                        msg: await homeController.checkLogin().toString());
+                  },
+                ),
+                Divider(
+                  height: 20,
+                ),
+                ListTile(
+                  leading: Icon(Icons.chat, color: Colors.amber),
+                  title: Text('Discussions'),
+                  trailing: Icon(Icons.chevron_right),
+                ),
+                Divider(
+                  height: 20,
+                ),
+                ListTile(
+                  leading: Icon(Icons.notification_add, color: Colors.amber),
+                  title: Text('Notifications'),
+                  trailing: Icon(Icons.chevron_right),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            color: Colors.white,
+            child: Column(
+              children: const [
+                ListTile(
+                  title: Text('FAQs'),
+                ),
+                Divider(
+                  height: 20,
+                ),
+                ListTile(
+                  title: Text("Conditions d'utilisation"),
+                ),
+                Divider(
+                  height: 20,
+                ),
+                ListTile(
+                  title: Text('Politique de confidentialité'),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 50),
+          const Center(
+            child: Text(
+              "BYDDR APP - 2022",
+              style:
+                  TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ]),
       ),
     );
-  }
-
-  Future<void> logout(BuildContext context) async {
-    Fluttertoast.showToast(msg: "Au revoir.. ");
-    //UserPreferences().removeUser();
-    Navigator.pushReplacementNamed(context, '/login');
   }
 }

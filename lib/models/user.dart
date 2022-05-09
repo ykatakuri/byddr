@@ -8,7 +8,6 @@ class AppUser {
   String? passwordConfirmation;
   int? idRole;
   String? token;
-  String? renewalToken;
 
   AppUser({
     this.id,
@@ -20,21 +19,19 @@ class AppUser {
     this.passwordConfirmation,
     this.idRole,
     this.token,
-    this.renewalToken,
   });
 
   factory AppUser.fromJson(Map<String, dynamic> json) {
     return AppUser(
       id: json['id'],
-      firstname: json['user']['firstname'],
-      lastname: json['user']['lastname'],
-      username: json['user']['username'],
-      email: json['user']['email'],
+      firstname: json['firstname'],
+      lastname: json['lastname'],
+      username: json['username'],
+      email: json['email'],
       password: json['password'],
       passwordConfirmation: json['password_confirmation'],
       idRole: json['id_role'],
       token: json['access_token'],
-      renewalToken: json['access_token'],
     );
   }
 

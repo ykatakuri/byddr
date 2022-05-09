@@ -6,6 +6,8 @@ import 'package:project/models/product.dart';
 import 'package:project/models/user.dart';
 import 'package:project/screens/onboarding_screen.dart';
 import 'package:project/screens/product_screen.dart';
+import 'package:project/services/product_service.dart';
+import 'package:project/utils/app_url.dart';
 import 'package:project/utils/constants.dart';
 
 class MyProductScreen extends StatefulWidget {
@@ -17,13 +19,13 @@ class MyProductScreen extends StatefulWidget {
 
 class _MyProductScreenState extends State<MyProductScreen> {
   final double _padding = 24;
-
-  // User? user = FirebaseAuth.instance.currentUser;
-  // AppUser loggedInUser = AppUser();
+  late Future<List<Product>> futureProduct;
 
   @override
   void initState() {
     super.initState();
+
+    futureProduct = ProductService().fetchUserProducts();
   }
 
   @override
@@ -45,10 +47,10 @@ class _MyProductScreenState extends State<MyProductScreen> {
           ),
           SizedBox(height: 24.h),
           Container(
-            color: customPrimaryColor,
+            color: Colors.black12,
             height: MediaQuery.of(context).size.height,
-            child: StreamBuilder<List<Product>>(
-              stream: readProducts(),
+            child: FutureBuilder<List<Product>>(
+              future: futureProduct,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(child: Text("Erreur ! ${snapshot.error}"));
@@ -74,44 +76,33 @@ class _MyProductScreenState extends State<MyProductScreen> {
   }
 
   Widget buildProduct(Product product) {
-    return Card(
-      elevation: 10,
-      child: ListTile(
-        leading: Container(
-          height: 50,
-          width: 50,
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-            image: DecorationImage(
-                image: NetworkImage("${product.productFile}"),
-                fit: BoxFit.cover),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        elevation: 10,
+        child: ListTile(
+          leading: Container(
+            height: 70,
+            width: 70,
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              image: DecorationImage(
+                  image: NetworkImage(
+                      "${AppURL.baseURL}img/${product.productFile}"),
+                  fit: BoxFit.cover),
+            ),
           ),
-        ),
-        title: Text("${product.productName}"),
-        subtitle: Text(
-          "${product.productDescription}",
+          title: Text("${product.productName}"),
+          subtitle: Text(
+            "${product.productDescription}",
+          ),
+          minVerticalPadding: 20,
+          contentPadding: const EdgeInsets.all(10),
         ),
       ),
     );
   }
-
-  readProducts() {}
-
-  /*
-  Future<List<Iterable<Product>>> getUserProducts() async{
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    return  FirebaseFirestore.instance
-        .collection("users")
-        .doc(uid)
-        .collection("products")
-        .where("userId", isEqualTo: uid)
-        .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Product.fromJson(doc.data())))
-        .toList();
-        
-  }*/
 }
 
 class _Header extends StatelessWidget {

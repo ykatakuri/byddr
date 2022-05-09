@@ -7,6 +7,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:project/animations/fade_animation.dart';
 import 'package:project/animations/slide_animation.dart';
 import 'package:project/models/product.dart';
+import 'package:project/utils/app_url.dart';
 
 import '../utils/constants.dart';
 
@@ -45,7 +46,8 @@ class _ProductScreenState extends State<ProductScreen> {
                     decoration: BoxDecoration(
                       color: Theme.of(context).primaryColor,
                       image: DecorationImage(
-                          image: NetworkImage("${widget.product.productFile}"),
+                          image: NetworkImage(
+                              "${AppURL.baseURL}img/${widget.product.productFile}"),
                           fit: BoxFit.cover),
                     ),
                   ),
@@ -79,7 +81,7 @@ class _ProductScreenState extends State<ProductScreen> {
                           ),
                           SizedBox(width: 8.h),
                           Text(
-                            '@${widget.product.userFirstName} ${widget.product.userLastName}',
+                            '@${widget.product.userId}',
                             style: const TextStyle(
                               color: Colors.black54,
                             ),
@@ -115,7 +117,7 @@ class _ProductScreenState extends State<ProductScreen> {
                           ),
                         ),
                         trailing: Text(
-                          "${widget.product.bidWinnerPrice} BTC",
+                          "30 BTC",
                           style: TextStyle(
                             fontSize: 16.r,
                             color: Colors.black,
@@ -145,7 +147,7 @@ class _ProductScreenState extends State<ProductScreen> {
                               );
                             },
                             child: const Text(
-                              "Faire Une offre",
+                              "Enchérir",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontSize: 20,
@@ -259,10 +261,10 @@ class _BottomSheetFormState extends State<BottomSheetForm> {
           padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
           minWidth: 100,
           onPressed: () {
-            Fluttertoast.showToast(msg: "Offre envoyée.. ");
+            Fluttertoast.showToast(msg: "Offre enregistrée.. ");
           },
           child: const Text(
-            "Envoyer",
+            "Enchérir",
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
