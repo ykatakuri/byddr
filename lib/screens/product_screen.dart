@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:favorite_button/favorite_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -190,9 +191,11 @@ class _AppBar extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        const Icon(
-          Iconsax.heart5,
-          color: Colors.red,
+        FavoriteButton(
+          isFavorite: false,
+          valueChanged: (_isFavorite) {
+            print('Is Favorite : $_isFavorite');
+          },
         ),
       ],
     );

@@ -48,6 +48,7 @@ dependencies:
   flutter_secure_storage: ^5.0.2
   dio: ^4.0.6
   path: ^1.8.0
+  favorite_button: ^0.0.4
 
   fluttertoast: ^8.0.9
   flutter_screenutil: ^5.3.1
