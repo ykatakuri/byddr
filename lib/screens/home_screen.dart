@@ -2,11 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:project/controllers/home_controller.dart';
 import 'package:project/screens/add_product_screen.dart';
 import 'package:project/screens/my_product_screen.dart';
 import 'package:project/screens/product_list_screen.dart';
 import 'package:project/screens/profile_screen.dart';
+import 'package:project/services/network_handler.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -22,7 +25,24 @@ class _HomeScreenState extends State<HomeScreen> {
   final Widget _productList = const ProductListScreen();
   final Widget _addProduct = const AddProductScreen();
   final Widget _myProduct = const MyProductScreen();
-  final Widget _profile = const ProfileScreen();
+  final Widget _profile = ProfileScreen();
+
+  var homeController = Get.put(HomeController());
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    homeController.checkLogin();
+  }
+
+  /*
+  void checkLogin() async {
+    String? token = await NetworkHandler.getToken();
+    print(token);
+  }
+  */
 
   @override
   Widget build(BuildContext context) {

@@ -4,13 +4,16 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:project/animations/page_transition.dart';
 import 'package:project/animations/slide_animation.dart';
+import 'package:project/controllers/home_controller.dart';
 import 'package:project/models/product.dart';
 import 'package:project/models/user.dart';
 import 'package:project/screens/onboarding_screen.dart';
 import 'package:project/screens/product_screen.dart';
+import 'package:project/services/network_handler.dart';
 import 'package:project/services/product_service.dart';
 import 'package:project/utils/app_url.dart';
 import 'package:project/utils/constants.dart';
@@ -48,9 +51,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
     productId = 1;
 
-    futureProductUser = ProductService().fetchProductUser(productId);
-
-    getToken();
+    futureProductUser = ProductService().fetchProductOwner(productId);
 
     startTimer();
     //reset();
@@ -183,14 +184,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const Spacer(),
-                  Text(
-                    '@${product.userId}',
-                    style: TextStyle(
-                      fontSize: 14.r,
-                      color: Colors.black54,
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -273,32 +266,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
             ],
           )
         : TextButton(onPressed: () {}, child: const Text("START TIMER"));
-  }
-
-  Future<String?> getToken() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
-  }
-
-  Future<List<Product>> fetchProducts() async {
-    final token = await getToken();
-
-    print('AUTH USER TOKEN: $token');
-
-    final response = await http.get(
-      Uri.parse(AppURL.products),
-      // Send authorization headers to the backend.
-      headers: {
-        HttpHeaders.authorizationHeader: '{Bearer $token}',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      List responseJson = jsonDecode(response.body);
-      return responseJson.map((product) => Product.fromJson(product)).toList();
-    } else {
-      throw Exception('Unexpected error occured!');
-    }
   }
 }
 

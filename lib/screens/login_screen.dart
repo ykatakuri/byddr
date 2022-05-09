@@ -5,12 +5,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get_instance/get_instance.dart';
+import 'package:get/route_manager.dart';
+import 'package:project/controllers/login_controller.dart';
 import 'package:project/models/product.dart';
 import 'package:project/models/user.dart';
 import 'package:project/screens/home_screen.dart';
 import 'package:project/screens/registration_screen.dart';
 import 'package:http/http.dart' as http;
-import 'package:project/services/shared_preferences.dart';
 import 'package:project/utils/app_url.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,10 +26,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-
-  //final _auth = FirebaseAuth.instance;
+  var loginController = Get.put(LoginController());
 
   String? errorMessage;
 
@@ -37,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final emailField = TextFormField(
       autofocus: false,
-      controller: emailController,
+      controller: loginController.emailController,
       keyboardType: TextInputType.emailAddress,
       validator: (value) {
         if (value!.isEmpty) {
@@ -49,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
         return null;
       },
       onSaved: (value) {
-        emailController.text = value!;
+        loginController.emailController.text = value!;
       },
       textInputAction: TextInputAction.next,
       decoration: InputDecoration(
@@ -64,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final passwordField = TextFormField(
         autofocus: false,
-        controller: passwordController,
+        controller: loginController.passwordController,
         obscureText: true,
         validator: (value) {
           RegExp regex = RegExp(r'^.{6,}$');
@@ -77,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
           return null;
         },
         onSaved: (value) {
-          passwordController.text = value!;
+          loginController.passwordController.text = value!;
         },
         textInputAction: TextInputAction.done,
         decoration: InputDecoration(
@@ -98,8 +97,8 @@ class _LoginScreenState extends State<LoginScreen> {
           minWidth: MediaQuery.of(context).size.width,
           onPressed: () {
             if (_formKey.currentState!.validate()) {
-              signIn(
-                  emailController.text.trim(), passwordController.text.trim());
+              loginController.login();
+              //signIn(emailController.text.trim(), passwordController.text.trim());
             } else {
               Fluttertoast.showToast(msg: "Veuillez remplir le formulaire");
             }
@@ -165,52 +164,5 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
-  }
-
-  Future<bool> setToken(String value) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.setString('token', value);
-  }
-
-  Future<Map<String, Object>> signIn(String email, String password) async {
-    Map<String, Object> result;
-
-    final response = await http.post(
-      Uri.parse(AppURL.login),
-      headers: <String, String>{
-        "Content-Type": "application/json; charset=UTF-8",
-      },
-      body: jsonEncode(<String, dynamic>{
-        "email": email,
-        "password": password,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      var userData = jsonDecode(response.body);
-
-      // now we will create a user model
-      AppUser authUser = AppUser.fromJson(userData);
-
-      print("Token: " + authUser.token!);
-      print("Username: " + authUser.username!);
-
-      // now we will create shared preferences and save data
-      //await UserPreferences().saveUser(authUser);
-
-      Fluttertoast.showToast(msg: "Content de vous revoir...");
-
-      Navigator.pushReplacementNamed(context, "/home");
-
-      result = {'status': true, 'message': 'Compte créé', 'data': authUser};
-    } else {
-      Fluttertoast.showToast(msg: "Oops...Une erreur est survenue!");
-      result = {
-        'status': false,
-        'message': 'Echec lors de la création du compte',
-        'data': response
-      };
-    }
-    return result;
   }
 }

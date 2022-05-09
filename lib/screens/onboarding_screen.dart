@@ -1,24 +1,43 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:project/animations/fade_animation.dart';
 import 'package:project/animations/page_transition.dart';
 import 'package:project/animations/slide_animation.dart';
+import 'package:project/controllers/home_controller.dart';
 import 'package:project/screens/login_screen.dart';
 import 'package:project/utils/constants.dart';
 
-class OnBoardingScreen extends StatelessWidget {
-  const OnBoardingScreen({Key? key}) : super(key: key);
+class OnBoardingScreen extends StatefulWidget {
+  OnBoardingScreen({Key? key}) : super(key: key);
 
   static const primaryColor = Color(0xff320C7E);
 
+  @override
+  State<OnBoardingScreen> createState() => _OnBoardingScreenState();
+}
+
+class _OnBoardingScreenState extends State<OnBoardingScreen> {
   final double _padding = 40;
+
   final _headingStyle = const TextStyle(
     fontWeight: FontWeight.w200,
     fontFamily: 'Dsignes',
     color: Colors.black,
   );
+
+  HomeController homeController = Get.put(HomeController());
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    homeController.checkLogin();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +63,7 @@ class OnBoardingScreen extends StatelessWidget {
                     ),
                     SizedBox(width: 8.w),
                     Text(
-                      'Débuté',
+                      'Bienvenue sur BYDDR',
                       style: TextStyle(
                         fontSize: 12.r,
                       ),
@@ -80,11 +99,13 @@ class OnBoardingScreen extends StatelessWidget {
                         ),
                         const TextSpan(
                           text: 'Collections ',
-                          style: TextStyle(color: primaryColor),
+                          style:
+                              TextStyle(color: OnBoardingScreen.primaryColor),
                         ),
                         const TextSpan(
                           text: 'Digitales',
-                          style: TextStyle(color: primaryColor),
+                          style:
+                              TextStyle(color: OnBoardingScreen.primaryColor),
                         ),
                       ],
                     ),
@@ -143,20 +164,30 @@ class OnBoardingScreen extends StatelessWidget {
                         child: Container(
                           padding: EdgeInsets.all(24.r),
                           decoration: const BoxDecoration(
-                            color: primaryColor,
+                            color: OnBoardingScreen.primaryColor,
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    PageTransition(
-                                      child: const LoginScreen(),
-                                      type: PageTransitionType.fadeIn,
-                                    ),
-                                  );
+                                  if (homeController.loggedIn == true) {
+                                    Navigator.push(
+                                      context,
+                                      PageTransition(
+                                        child: const LoginScreen(),
+                                        type: PageTransitionType.fadeIn,
+                                      ),
+                                    );
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      PageTransition(
+                                        child: const LoginScreen(),
+                                        type: PageTransitionType.fadeIn,
+                                      ),
+                                    );
+                                  }
                                 },
                                 child: Container(
                                   width: 40.r,

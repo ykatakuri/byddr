@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:project/screens/home_screen.dart';
 import 'package:project/screens/login_screen.dart';
+import 'package:project/screens/onboarding_screen.dart';
 import 'package:project/screens/registration_screen.dart';
 
 void main() {
@@ -15,13 +17,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(builder: (() {
-      return MaterialApp(
+      return GetMaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.indigo,
         ),
         title: 'BYDDR',
-        home: const LoginScreen(),
+        home: OnBoardingScreen(),
+        getPages: [
+          GetPage(name: '/', page: () => const LoginScreen()),
+          GetPage(name: '/home', page: () => const HomeScreen()),
+          GetPage(
+              name: '/registration', page: () => const RegistrationScreen()),
+          GetPage(name: "/login", page: () => const LoginScreen())
+        ],
         routes: {
           '/login': (context) => const LoginScreen(),
           '/registration': (context) => const RegistrationScreen(),

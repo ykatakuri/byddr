@@ -1,5 +1,6 @@
 // ignore_for_file: unused_import, invalid_use_of_visible_for_testing_member, avoid_print
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get_connect/http/src/multipart/form_data.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project/models/product.dart';
@@ -15,6 +17,8 @@ import 'package:project/services/product_service.dart';
 import 'package:project/utils/constants.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart';
+import 'package:async/async.dart';
+import 'package:http/http.dart' as http;
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({Key? key}) : super(key: key);
@@ -84,6 +88,21 @@ class _AddProductScreenState extends State<AddProductScreen> {
     } on PlatformException catch (e) {
       print('Failed to snap photo: $e');
     }
+  }
+
+  _asyncFileUpload(File file) async {
+    //create multipart request for POST or PATCH method
+    var request = http.MultipartRequest(
+        "POST", Uri.parse("https://encheres-ynov.herokuapp.com/api/produit"));
+    //create multipart using filepath, string or bytes
+    var pic = await http.MultipartFile.fromPath("image", file.path);
+    //add multipart to request
+    request.files.add(pic);
+    var response = await request.send();
+    //Get the response from the server
+    var responseData = await response.stream.toBytes();
+    var responseString = String.fromCharCodes(responseData);
+    print(responseString);
   }
 
   @override
@@ -185,6 +204,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ],
     );
 
+    Future addProduct(String productName, String productDescription,
+        String productFile, double productPrice) async {
+      ProductService().createProduct(
+          productName, productDescription, productFile, productPrice);
+    }
+
     final addButton = Material(
       elevation: 5,
       borderRadius: BorderRadius.circular(30),
@@ -193,8 +218,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
           padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
           minWidth: MediaQuery.of(context).size.width,
           onPressed: () {
-            final String productName, productDescription, productFile;
-            final int productPrice;
+            final String productName, productDescription;
+            String? productFile;
+            final double productPrice;
 
             if (_formKey.currentState!.validate()) {
               _formKey.currentState!.save();
@@ -202,17 +228,21 @@ class _AddProductScreenState extends State<AddProductScreen> {
               productName = productNameEditingController.text;
               productDescription = productDescriptionEditingController.text;
               productFile = fileName;
-              productPrice = int.parse(productPriceEditingController.text);
+              productPrice = double.parse(productPriceEditingController.text);
+
+              _asyncFileUpload(file!);
 
               addProduct(
                   productName, productDescription, productFile, productPrice);
+
+              Fluttertoast.showToast(msg: "Produit mis aux enchères.. ");
+
+              productNameEditingController.text = "";
+              productDescriptionEditingController.text = "";
+              productPriceEditingController.text = "";
+            } else {
+              Fluttertoast.showToast(msg: "Une Erreur Est Survenue");
             }
-
-            Fluttertoast.showToast(msg: "Produit mis aux enchères.. ");
-
-            productNameEditingController.text = "";
-            productDescriptionEditingController.text = "";
-            productPriceEditingController.text = "";
           },
           child: const Text(
             "Publier",
@@ -273,12 +303,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
         ],
       ),
     );
-  }
-
-  Future addProduct(String productName, String productDescription,
-      String productFile, int productPrice) async {
-    await ProductService().createProduct(
-        productName, productDescription, productFile, productPrice);
   }
 }
 

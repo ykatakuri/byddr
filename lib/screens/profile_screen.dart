@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
+import 'package:project/controllers/home_controller.dart';
 import 'package:project/utils/constants.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  ProfileScreen({Key? key}) : super(key: key);
 
   final double topContainerHeight = 190.0;
+
+  var homeController = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +55,9 @@ class ProfileScreen extends StatelessWidget {
                   child: ElevatedButton(
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(Colors.red)),
-                    onPressed: () {},
+                    onPressed: () {
+                      homeController.logout();
+                    },
                     child: SizedBox(
                         width: MediaQuery.of(context).size.width - 215,
                         height: 45,
@@ -73,7 +80,7 @@ class ProfileScreen extends StatelessWidget {
           Container(
             color: Colors.white,
             child: Column(
-              children: const [
+              children: [
                 ListTile(
                   leading: Icon(
                     Icons.account_box,
@@ -81,6 +88,10 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   title: Text('Compte'),
                   trailing: Icon(Icons.chevron_right),
+                  onTap: () async {
+                    Fluttertoast.showToast(
+                        msg: await homeController.checkLogin().toString());
+                  },
                 ),
                 Divider(
                   height: 20,
